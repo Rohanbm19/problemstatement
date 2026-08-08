@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>TwinStock AI - Manager</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+</head>
+
+
+<body>
+
+    <!-- HEADER -->
+
+    <header class="topbar">
+
+        <div class="brand-small">
+            
+            <strong>TwinStock AI</strong>
+        </div>
+
+
+        <div class="header-right">
+
+            <div class="role-switcher">
+
+                <span>Role:</span>
+
+                <select id="roleSelect"
+                        onchange="switchRole()">
+
+                    <option value="manager">
+                        👨‍💼 Manager
+                    </option>
+
+                    <option value="worker">
+                        👷 Worker
+                    </option>
+
+                </select>
+
+            </div>
+
+            <button class="logout-btn"
+                    onclick="goHome()">
+
+                Logout
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main class="dashboard">
+
+        <!-- PAGE TITLE -->
+
+        <div class="page-heading">
+
+            <div>
+                <h1>Manager </h1>
+
+                <p>
+                    Monitor inventory, AI predictions and replenishment
+                    recommendations.
+                </p>
+            </div>
+
+            <div class="status-badge">
+                ● System Live
+            </div>
+
+        </div>
+
+
+        <!-- SUMMARY CARDS -->
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+
+                <div class="summary-icon blue">
+                    📦
+                </div>
+
+                <div>
+                    <p>Total Products</p>
+                    <h2 id="totalProducts">--</h2>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon purple">
+                    📊
+                </div>
+
+                <div>
+                    <p>Total Inventory</p>
+                    <h2 id="totalInventory">--</h2>
+                    <span>units</span>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card risk-card">
+
+                <div class="summary-icon red">
+                    ⚠️
+                </div>
+
+                <div>
+                    <p>High Risk</p>
+                    <h2 id="highRisk">--</h2>
+                    <span>products</span>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card overstock-card">
+
+                <div class="summary-icon orange">
+                    📈
+                </div>
+
+                <div>
+                    <p>Overstock</p>
+                    <h2 id="overstock">--</h2>
+                    <span>products</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- MAIN GRID -->
+
+        <section class="manager-grid">
+
+
+            <!-- GRANITE SUGGESTIONS -->
+
+            <div class="panel suggestions-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h2> AI Suggestions</h2>
+
+                        
+                    </div>
+
+                    <span class="ai-status">
+                        AI
+                    </span>
+
+                </div>
+
+
+                <!-- SUGGESTION 1 -->
+
+                <div class="suggestion-card high">
+
+                    <div class="suggestion-top">
+
+                        <div class="product-info">
+
+                            <span class="risk-dot red-dot"></span>
+
+                            <div>
+                                <h3></h3>
+                                <span>Product ID: PRD-00</span>
+                            </div>
+
+                        </div>
+
+                        <span class="risk-label high-label">
+                            HIGH RISK
+                        </span>
+
+                    </div>
+
+
+                    <p class="suggestion-message">
+
+                        Stockout predicted in
+                        <strong>3 days</strong>
+                        based on current demand.
+
+                    </p>
+
+
+                    <div class="suggestion-details">
+
+                        <div>
+                            <span>Current Stock</span>
+                            <strong>120 units</strong>
+                        </div>
+
+                        <div>
+                            <span>Predicted Demand</span>
+                            <strong>50/day</strong>
+                        </div>
+
+                        <div>
+                            <span>Recommended</span>
+                            <strong>200 units</strong>
+                        </div>
+
+                    </div>
+
+
+                    <button class="primary-btn"
+                            onclick="openRecommendation('Laptop')">
+
+                        View Recommendation →
+
+                    </button>
+
+                </div>
+
+
+                <!-- SUGGESTION 2 -->
+
+                <div class="suggestion-card medium">
+
+                    <div class="suggestion-top">
+
+                        <div class="product-info">
+
+                            <span class="risk-dot orange-dot"></span>
+
+                            <div>
+                                <h3>Keyboard</h3>
+                                <span>Product ID: PRD-014</span>
+                            </div>
+
+                        </div>
+
+                        <span class="risk-label medium-label">
+                            MEDIUM RISK
+                        </span>
+
+                    </div>
+
+
+                    <p class="suggestion-message">
+
+                        Demand is increasing.
+                        Stockout predicted in
+                        <strong>5 days</strong>.
+
+                    </p>
+
+
+                    <div class="suggestion-details">
+
+                        <div>
+                            <span>Current Stock</span>
+                            <strong>180 units</strong>
+                        </div>
+
+                        <div>
+                            <span>Predicted Demand</span>
+                            <strong>35/day</strong>
+                        </div>
+
+                        <div>
+                            <span>Recommended</span>
+                            <strong>150 units</strong>
+                        </div>
+
+                    </div>
+
+
+                    <button class="secondary-btn"
+                            onclick="openRecommendation('Keyboard')">
+
+                        View Recommendation →
+
+                    </button>
+
+                </div>
+
+
+                <!-- SUGGESTION 3 -->
+
+                <div class="suggestion-card warning">
+
+                    <div class="suggestion-top">
+
+                        <div class="product-info">
+
+                            <span class="risk-dot yellow-dot"></span>
+
+                            <div>
+                                <h3>Monitor</h3>
+                                <span>Product ID: PRD-021</span>
+                            </div>
+
+                        </div>
+
+                        <span class="risk-label warning-label">
+                            OVERSTOCK
+                        </span>
+
+                    </div>
+
+
+                    <p class="suggestion-message">
+
+                        Current inventory may cover
+                        <strong>100 days</strong>
+                        of expected demand.
+
+                    </p>
+
+
+                    <div class="suggestion-details">
+
+                        <div>
+                            <span>Current Stock</span>
+                            <strong>2,000 units</strong>
+                        </div>
+
+                        <div>
+                            <span>Daily Demand</span>
+                            <strong>20/day</strong>
+                        </div>
+
+                        <div>
+                            <span>Status</span>
+                            <strong>Review</strong>
+                        </div>
+
+                    </div>
+
+
+                    <button class="secondary-btn">
+
+                        View Details →
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- IBM BOB -->
+
+            <div class="panel chatbot-panel">
+
+                <div class="chat-header">
+
+                    <div class="bob-avatar">
+                        🤖
+                    </div>
+
+                    <div>
+
+                        <h2>IBM Bob</h2>
+
+                        <span>
+                            AI Warehouse Assistant
+                        </span>
+
+                    </div>
+
+                    <div class="online-dot"></div>
+
+                </div>
+
+
+                <div class="chat-messages"
+                     id="chatMessages">
+
+                    <div class="message bot-message">
+
+                        <div class="message-avatar">
+                            🤖
+                        </div>
+
+                        <div class="message-content">
+
+                            <span class="message-name">
+                                IBM Bob
+                            </span>
+
+                            <p>
+                                Hello! I'm your warehouse AI assistant.
+                                I can help you understand inventory risks,
+                                predictions and replenishment recommendations.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="quick-questions">
+
+                        <button onclick="askQuestion(
+                            'Which products should I reorder?'
+                        )">
+                            Which products should I reorder?
+                        </button>
+
+                        <button onclick="askQuestion(
+                            'Why is Laptop high risk?'
+                        )">
+                            Why is Laptop high risk?
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="chat-input-area">
+
+                    <input
+                        type="text"
+                        id="chatInput"
+                        placeholder="Ask IBM Bob about your inventory..."
+                        onkeypress="handleChatKey(event)"
+                    >
+
+                    <button onclick="sendMessage()">
+                        ➤
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="js/manager.js"></script>
+
+</body>
+
+</html>
