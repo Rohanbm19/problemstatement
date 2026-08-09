@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>TwinStock AI - Worker</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+</head>
+
+
+<body>
+
+    <header class="topbar">
+
+        <div class="brand-small">
+            <span>📦</span>
+            <strong>TwinStock AI</strong>
+        </div>
+
+
+        <div class="header-right">
+
+            <div class="role-switcher">
+
+                <span>Role:</span>
+
+                <select id="roleSelect"
+                        onchange="switchRole()">
+
+                    <option value="worker">
+                        👷 Worker
+                    </option>
+
+                    <option value="manager">
+                        👨‍💼 Manager
+                    </option>
+
+                </select>
+
+            </div>
+
+            <button class="logout-btn"
+                    onclick="goHome()">
+
+                Logout
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main class="dashboard">
+
+
+        <div class="page-heading">
+
+            <div>
+
+                <h1>Worker Dashboard</h1>
+
+                <p>
+                    Update warehouse inventory and record transactions.
+                </p>
+
+            </div>
+
+            <div class="status-badge">
+                ● System Live
+            </div>
+
+        </div>
+
+
+        <!-- SUMMARY -->
+
+        <section class="summary-grid">
+
+            <div class="summary-card">
+
+                <div class="summary-icon blue">
+                    📦
+                </div>
+
+                <div>
+                    <p>Total Products</p>
+                    <h2>1,520</h2>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <div class="summary-icon purple">
+                    📊
+                </div>
+
+                <div>
+                    <p>Total Inventory</p>
+                    <h2>24,820</h2>
+                    <span>units</span>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card risk-card">
+
+                <div class="summary-icon red">
+                    ⚠️
+                </div>
+
+                <div>
+                    <p>High Risk</p>
+                    <h2>8</h2>
+                    <span>products</span>
+                </div>
+
+            </div>
+
+
+            <div class="summary-card overstock-card">
+
+                <div class="summary-icon orange">
+                    📈
+                </div>
+
+                <div>
+                    <p>Overstock</p>
+                    <h2>12</h2>
+                    <span>products</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- WORKER CONTENT -->
+
+        <section class="worker-grid">
+
+
+            <!-- UPDATE FORM -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>📦 Update Inventory</h2>
+
+                        <p>
+                            Record a new warehouse transaction
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <form id="transactionForm">
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Product
+                        </label>
+
+                        <select id="product"
+                                required>
+
+                            <option value="">
+                                Select Product
+                            </option>
+
+                            <option>Laptop</option>
+                            <option>Keyboard</option>
+                            <option>Mouse</option>
+                            <option>Monitor</option>
+                            <option>Headphones</option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Transaction Type
+                        </label>
+
+                        <div class="transaction-types">
+
+                            <button type="button"
+                                    class="transaction-type active"
+                                    data-type="receive">
+
+                                <span>📥</span>
+                                Receive
+
+                            </button>
+
+
+                            <button type="button"
+                                    class="transaction-type"
+                                    data-type="dispatch">
+
+                                <span>📤</span>
+                                Dispatch
+
+                            </button>
+
+
+                            <button type="button"
+                                    class="transaction-type"
+                                    data-type="return">
+
+                                <span>↩️</span>
+                                Return
+
+                            </button>
+
+
+                            <button type="button"
+                                    class="transaction-type"
+                                    data-type="damaged">
+
+                                <span>⚠️</span>
+                                Damaged
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label>
+                                Units
+                            </label>
+
+                            <input
+                                type="number"
+                                id="quantity"
+                                placeholder="Enter units"
+                                min="1"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Location
+                            </label>
+
+                            <select id="location">
+
+                                <option>
+                                    Shelf A12
+                                </option>
+
+                                <option>
+                                    Shelf B04
+                                </option>
+
+                                <option>
+                                    Shelf C08
+                                </option>
+
+                                <option>
+                                    Shelf D15
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Details / Notes
+                        </label>
+
+                        <textarea
+                            id="notes"
+                            rows="4"
+                            placeholder="Enter any additional details...">
+                        </textarea>
+
+                    </div>
+
+
+                    <button type="submit"
+                            class="primary-btn full-btn">
+
+                        Submit Transaction
+
+                    </button>
+
+
+                </form>
+
+
+                <div id="successMessage"
+                     class="success-message">
+
+                    ✓ Transaction recorded successfully!
+
+                </div>
+
+            </div>
+
+
+            <!-- RECENT TRANSACTIONS -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>📋 Recent Transactions</h2>
+
+                        <p>
+                            Latest inventory updates
+                        </p>
+
+                    </div>
+
+                    <span class="count-badge">
+                        Today
+                    </span>
+
+                </div>
+
+
+                <div class="transaction-list"
+                     id="transactionList">
+
+
+                    <div class="transaction-item">
+
+                        <div class="transaction-icon dispatch">
+                            📤
+                        </div>
+
+                        <div class="transaction-info">
+
+                            <strong>Laptop</strong>
+
+                            <span>
+                                Dispatch • 10:30 AM
+                            </span>
+
+                        </div>
+
+                        <strong class="negative">
+                            -30
+                        </strong>
+
+                    </div>
+
+
+                    <div class="transaction-item">
+
+                        <div class="transaction-icon receive">
+                            📥
+                        </div>
+
+                        <div class="transaction-info">
+
+                            <strong>Mouse</strong>
+
+                            <span>
+                                Receive • 10:15 AM
+                            </span>
+
+                        </div>
+
+                        <strong class="positive">
+                            +100
+                        </strong>
+
+                    </div>
+
+
+                    <div class="transaction-item">
+
+                        <div class="transaction-icon damaged">
+                            ⚠️
+                        </div>
+
+                        <div class="transaction-info">
+
+                            <strong>Keyboard</strong>
+
+                            <span>
+                                Damaged • 9:45 AM
+                            </span>
+
+                        </div>
+
+                        <strong class="negative">
+                            -5
+                        </strong>
+
+                    </div>
+
+
+                    <div class="transaction-item">
+
+                        <div class="transaction-icon receive">
+                            📥
+                        </div>
+
+                        <div class="transaction-info">
+
+                            <strong>Monitor</strong>
+
+                            <span>
+                                Receive • 9:20 AM
+                            </span>
+
+                        </div>
+
+                        <strong class="positive">
+                            +50
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="js/worker.js"></script>
+
+</body>
+
+</html>
