@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -12,457 +11,475 @@
 
     <link rel="stylesheet"
           href="css/style.css">
-
 </head>
-
 
 <body>
 
-    <header class="topbar">
+<header class="topbar">
 
-        <div class="brand-small">
-            <span>📦</span>
-            <strong>TwinStock AI</strong>
+    <div class="brand-small">
+        <span></span>
+        <strong>TwinStock AI</strong>
+    </div>
+
+    <div class="header-right">
+
+        <div class="role-switcher">
+
+            <span>Role:</span>
+
+            <select id="roleSelect"
+                    onchange="switchRole()">
+
+                <option value="worker">
+                    👷 Worker
+                </option>
+
+                <option value="manager">
+                    👨‍💼 Manager
+                </option>
+
+            </select>
+
         </div>
 
+        <button class="logout-btn"
+                onclick="goHome()">
+            Logout
+        </button>
 
-        <div class="header-right">
+    </div>
 
-            <div class="role-switcher">
+</header>
 
-                <span>Role:</span>
 
-                <select id="roleSelect"
-                        onchange="switchRole()">
+<main class="dashboard">
 
-                    <option value="worker">
-                        👷 Worker
-                    </option>
+    <!-- PAGE HEADING -->
 
-                    <option value="manager">
-                        👨‍💼 Manager
-                    </option>
+    <div class="page-heading">
 
-                </select>
+        <div>
 
+            <h1>Worker Dashboard</h1>
+
+            <p>
+                Update warehouse inventory and record transactions.
+            </p>
+
+        </div>
+
+        <div class="status-badge">
+            ● System Live
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY -->
+
+    <section class="summary-grid">
+
+        <div class="summary-card">
+
+            <div class="summary-icon blue">
+                📦
             </div>
-
-            <button class="logout-btn"
-                    onclick="goHome()">
-
-                Logout
-
-            </button>
-
-        </div>
-
-    </header>
-
-
-    <main class="dashboard">
-
-
-        <div class="page-heading">
 
             <div>
-
-                <h1>Worker Dashboard</h1>
-
-                <p>
-                    Update warehouse inventory and record transactions.
-                </p>
-
-            </div>
-
-            <div class="status-badge">
-                ● System Live
+                <p>Total Products</p>
+                <h2>--</h2>
             </div>
 
         </div>
 
 
-        <!-- SUMMARY -->
+        <div class="summary-card">
 
-        <section class="summary-grid">
+            <div class="summary-icon purple">
+                📊
+            </div>
 
-            <div class="summary-card">
+            <div>
+                <p>Total Inventory</p>
+                <h2>24,820</h2>
+                <span>units</span>
+            </div>
 
-                <div class="summary-icon blue">
-                    📦
-                </div>
+        </div>
+
+
+        <div class="summary-card risk-card">
+
+            <div class="summary-icon red">
+                ⚠️
+            </div>
+
+            <div>
+                <p>High Risk</p>
+                <h2>8</h2>
+                <span>products</span>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card overstock-card">
+
+            <div class="summary-icon orange">
+                📈
+            </div>
+
+            <div>
+                <p>Overstock</p>
+                <h2>12</h2>
+                <span>products</span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- WORKER CONTENT -->
+
+    <section class="worker-grid">
+
+
+        <!-- UPDATE INVENTORY -->
+
+        <div class="panel">
+
+            <div class="panel-header">
 
                 <div>
-                    <p>Total Products</p>
-                    <h2>1,520</h2>
+
+                    <h2>📦 Update Inventory</h2>
+
+                    <p>
+                        Record a new warehouse transaction
+                    </p>
+
                 </div>
 
             </div>
 
 
-            <div class="summary-card">
+            <form id="transactionForm">
 
-                <div class="summary-icon purple">
-                    📊
+
+                <!-- PRODUCT -->
+
+                <div class="form-group">
+
+                    <label for="product">
+                        Product ID
+                    </label>
+
+                    <input
+                        type="text"
+                        id="product"
+                        name="product"
+                        placeholder="Example: ITM10000"
+                        required
+                    >
+
+                    <small>
+                        Enter the Item ID from the inventory database.
+                    </small>
+
                 </div>
 
-                <div>
-                    <p>Total Inventory</p>
-                    <h2>24,820</h2>
-                    <span>units</span>
-                </div>
 
-            </div>
+                <!-- TRANSACTION TYPE -->
 
+                <div class="form-group">
 
-            <div class="summary-card risk-card">
+                    <label>
+                        Transaction Type
+                    </label>
 
-                <div class="summary-icon red">
-                    ⚠️
-                </div>
+                    <div class="transaction-types">
 
-                <div>
-                    <p>High Risk</p>
-                    <h2>8</h2>
-                    <span>products</span>
-                </div>
+                        <button
+                            type="button"
+                            class="transaction-type active"
+                            data-type="receive">
 
-            </div>
+                            <span>📥</span>
+                            Receive
+
+                        </button>
 
 
-            <div class="summary-card overstock-card">
+                        <button
+                            type="button"
+                            class="transaction-type"
+                            data-type="dispatch">
 
-                <div class="summary-icon orange">
-                    📈
-                </div>
+                            <span>📤</span>
+                            Dispatch
 
-                <div>
-                    <p>Overstock</p>
-                    <h2>12</h2>
-                    <span>products</span>
-                </div>
-
-            </div>
-
-        </section>
+                        </button>
 
 
-        <!-- WORKER CONTENT -->
+                        <button
+                            type="button"
+                            class="transaction-type"
+                            data-type="return">
 
-        <section class="worker-grid">
+                            <span>↩️</span>
+                            Return
+
+                        </button>
 
 
-            <!-- UPDATE FORM -->
+                        <button
+                            type="button"
+                            class="transaction-type"
+                            data-type="damaged">
 
-            <div class="panel">
+                            <span>⚠️</span>
+                            Damaged
 
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>📦 Update Inventory</h2>
-
-                        <p>
-                            Record a new warehouse transaction
-                        </p>
+                        </button>
 
                     </div>
 
                 </div>
 
 
-                <form id="transactionForm">
+                <!-- QUANTITY + LOCATION -->
+
+                <div class="form-row">
+
+                    <div class="form-group">
+
+                        <label for="quantity">
+                            Units
+                        </label>
+
+                        <input
+                            type="number"
+                            id="quantity"
+                            name="quantity"
+                            placeholder="Enter units"
+                            min="1"
+                            required
+                        >
+
+                    </div>
 
 
                     <div class="form-group">
 
-                        <label>
-                            Product
+                        <label for="location">
+                            Location
                         </label>
 
-                        <select id="product"
-                                required>
+                        <select
+                            id="location"
+                            name="location"
+                            required>
 
-                            <option value="">
-                                Select Product
+                            <option value="L82">
+                                Shelf A12
                             </option>
 
-                            <option>Laptop</option>
-                            <option>Keyboard</option>
-                            <option>Mouse</option>
-                            <option>Monitor</option>
-                            <option>Headphones</option>
+                            <option value="L15">
+                                Shelf B04
+                            </option>
+
+                            <option value="L04">
+                                Shelf C08
+                            </option>
+
+                            <option value="L95">
+                                Shelf D15
+                            </option>
 
                         </select>
 
                     </div>
 
-
-                    <div class="form-group">
-
-                        <label>
-                            Transaction Type
-                        </label>
-
-                        <div class="transaction-types">
-
-                            <button type="button"
-                                    class="transaction-type active"
-                                    data-type="receive">
-
-                                <span>📥</span>
-                                Receive
-
-                            </button>
+                </div>
 
 
-                            <button type="button"
-                                    class="transaction-type"
-                                    data-type="dispatch">
+                <!-- NOTES -->
 
-                                <span>📤</span>
-                                Dispatch
+                <div class="form-group">
 
-                            </button>
+                    <label for="notes">
+                        Details / Notes
+                    </label>
 
+                    <textarea
+                        id="notes"
+                        name="notes"
+                        rows="4"
+                        placeholder="Enter any additional details..."></textarea>
 
-                            <button type="button"
-                                    class="transaction-type"
-                                    data-type="return">
-
-                                <span>↩️</span>
-                                Return
-
-                            </button>
+                </div>
 
 
-                            <button type="button"
-                                    class="transaction-type"
-                                    data-type="damaged">
+                <!-- SUBMIT -->
 
-                                <span>⚠️</span>
-                                Damaged
+                <button
+                    type="submit"
+                    class="primary-btn full-btn">
 
-                            </button>
+                    Submit Transaction
 
-                        </div>
+                </button>
+
+            </form>
+
+
+            <!-- SUCCESS -->
+
+            <div
+                id="successMessage"
+                class="success-message"
+                style="display: none;">
+
+                ✓ Transaction recorded successfully!
+
+            </div>
+
+        </div>
+
+
+        <!-- RECENT TRANSACTIONS -->
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>📋 Recent Transactions</h2>
+
+                    <p>
+                        Latest inventory updates
+                    </p>
+
+                </div>
+
+                <span class="count-badge">
+                    Today
+                </span>
+
+            </div>
+
+
+            <div
+                class="transaction-list"
+                id="transactionList">
+
+
+                <!-- Example transaction -->
+
+                <div class="transaction-item">
+
+                    <div class="transaction-icon dispatch">
+                        📤
+                    </div>
+
+                    <div class="transaction-info">
+
+                        <strong>Laptop</strong>
+
+                        <span>
+                            Dispatch • 10:30 AM
+                        </span>
 
                     </div>
 
+                    <strong class="negative">
+                        -30
+                    </strong>
 
-                    <div class="form-row">
-
-                        <div class="form-group">
-
-                            <label>
-                                Units
-                            </label>
-
-                            <input
-                                type="number"
-                                id="quantity"
-                                placeholder="Enter units"
-                                min="1"
-                                required
-                            >
-
-                        </div>
+                </div>
 
 
-                        <div class="form-group">
+                <div class="transaction-item">
 
-                            <label>
-                                Location
-                            </label>
+                    <div class="transaction-icon receive">
+                        📥
+                    </div>
 
-                            <select id="location">
+                    <div class="transaction-info">
 
-                                <option>
-                                    Shelf A12
-                                </option>
+                        <strong>Mouse</strong>
 
-                                <option>
-                                    Shelf B04
-                                </option>
-
-                                <option>
-                                    Shelf C08
-                                </option>
-
-                                <option>
-                                    Shelf D15
-                                </option>
-
-                            </select>
-
-                        </div>
+                        <span>
+                            Receive • 10:15 AM
+                        </span>
 
                     </div>
 
+                    <strong class="positive">
+                        +100
+                    </strong>
 
-                    <div class="form-group">
+                </div>
 
-                        <label>
-                            Details / Notes
-                        </label>
 
-                        <textarea
-                            id="notes"
-                            rows="4"
-                            placeholder="Enter any additional details...">
-                        </textarea>
+                <div class="transaction-item">
+
+                    <div class="transaction-icon damaged">
+                        ⚠️
+                    </div>
+
+                    <div class="transaction-info">
+
+                        <strong>Keyboard</strong>
+
+                        <span>
+                            Damaged • 9:45 AM
+                        </span>
 
                     </div>
 
+                    <strong class="negative">
+                        -5
+                    </strong>
 
-                    <button type="submit"
-                            class="primary-btn full-btn">
-
-                        Submit Transaction
-
-                    </button>
+                </div>
 
 
-                </form>
+                <div class="transaction-item">
 
+                    <div class="transaction-icon receive">
+                        📥
+                    </div>
 
-                <div id="successMessage"
-                     class="success-message">
+                    <div class="transaction-info">
 
-                    ✓ Transaction recorded successfully!
+                        <strong>Monitor</strong>
+
+                        <span>
+                            Receive • 9:20 AM
+                        </span>
+
+                    </div>
+
+                    <strong class="positive">
+                        +50
+                    </strong>
 
                 </div>
 
             </div>
 
+        </div>
 
-            <!-- RECENT TRANSACTIONS -->
+    </section>
 
-            <div class="panel">
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>📋 Recent Transactions</h2>
-
-                        <p>
-                            Latest inventory updates
-                        </p>
-
-                    </div>
-
-                    <span class="count-badge">
-                        Today
-                    </span>
-
-                </div>
+</main>
 
 
-                <div class="transaction-list"
-                     id="transactionList">
-
-
-                    <div class="transaction-item">
-
-                        <div class="transaction-icon dispatch">
-                            📤
-                        </div>
-
-                        <div class="transaction-info">
-
-                            <strong>Laptop</strong>
-
-                            <span>
-                                Dispatch • 10:30 AM
-                            </span>
-
-                        </div>
-
-                        <strong class="negative">
-                            -30
-                        </strong>
-
-                    </div>
-
-
-                    <div class="transaction-item">
-
-                        <div class="transaction-icon receive">
-                            📥
-                        </div>
-
-                        <div class="transaction-info">
-
-                            <strong>Mouse</strong>
-
-                            <span>
-                                Receive • 10:15 AM
-                            </span>
-
-                        </div>
-
-                        <strong class="positive">
-                            +100
-                        </strong>
-
-                    </div>
-
-
-                    <div class="transaction-item">
-
-                        <div class="transaction-icon damaged">
-                            ⚠️
-                        </div>
-
-                        <div class="transaction-info">
-
-                            <strong>Keyboard</strong>
-
-                            <span>
-                                Damaged • 9:45 AM
-                            </span>
-
-                        </div>
-
-                        <strong class="negative">
-                            -5
-                        </strong>
-
-                    </div>
-
-
-                    <div class="transaction-item">
-
-                        <div class="transaction-icon receive">
-                            📥
-                        </div>
-
-                        <div class="transaction-info">
-
-                            <strong>Monitor</strong>
-
-                            <span>
-                                Receive • 9:20 AM
-                            </span>
-
-                        </div>
-
-                        <strong class="positive">
-                            +50
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <script src="js/worker.js"></script>
+<script src="js/worker.js"></script>
 
 </body>
 

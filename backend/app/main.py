@@ -2,9 +2,19 @@ from fastapi import FastAPI
 from sqlalchemy import text
 
 from app.database import engine, Base
+from fastapi.middleware.cors import CORSMiddleware
+# Models
 from app.models.inventory import InventoryItem
-from app.routes.inventory import router as inventory_router
+from app.models.transaction import Transaction
 
+# Routes
+from app.routes.inventory import router as inventory_router
+from app.routes.transactions import router as transaction_router
+
+
+# ============================================================
+# FASTAPI APPLICATION
+# ============================================================
 
 app = FastAPI(
     title="TwinStock AI API",
@@ -13,13 +23,24 @@ app = FastAPI(
 )
 
 
-# Create database tables if they don't already exist
+# ============================================================
+# DATABASE TABLE CREATION
+# ============================================================
+
 Base.metadata.create_all(bind=engine)
 
 
-# Register inventory routes
-app.include_router(inventory_router)
+# ============================================================
+# ROUTES
+# ============================================================
 
+app.include_router(inventory_router)
+app.include_router(transaction_router)
+
+
+# ============================================================
+# ROOT
+# ============================================================
 
 @app.get("/")
 def root():
@@ -28,9 +49,15 @@ def root():
     }
 
 
+# ============================================================
+# HEALTH CHECK
+# ============================================================
+
 @app.get("/health")
 def health_check():
+
     try:
+
         with engine.connect() as connection:
             connection.execute(text("SELECT 1"))
 
@@ -40,6 +67,7 @@ def health_check():
         }
 
     except Exception as e:
+
         return {
             "status": "unhealthy",
             "database": "disconnected",

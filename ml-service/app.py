@@ -1,26 +1,41 @@
-from src.data_cleaning import clean_warehouse_data
-from src.preprocessing import prepare_features
+from fastapi import FastAPI
+from src.preprocessing import load_data
 from src.forecast import forecast_demand
-from src.stockout import detect_stockout_risk
-from src.recommendation import build_recommendations
+from src.stockout import calculate_stockout
 
 
-def run_pipeline(raw_data_path: str, cleaned_data_path: str):
-    cleaned_df = clean_warehouse_data(raw_data_path)
-    cleaned_df.to_csv(cleaned_data_path, index=False)
+app = FastAPI(
+    title="TwinStock AI ML Service",
+    description="Demand forecasting and stockout prediction service",
+    version="1.0.0"
+)
 
-    features = prepare_features(cleaned_df)
-    forecast = forecast_demand(features)
-    stockout_risk = detect_stockout_risk(features)
-    recommendations = build_recommendations(stockout_risk, forecast)
 
+DATA_PATH = "data/warehouse_cleaned.csv"
+
+
+@app.get("/")
+def root():
     return {
-        "forecast": forecast,
-        "stockout_risk": stockout_risk,
-        "recommendations": recommendations,
+        "message": "TwinStock AI ML Service is running"
     }
 
 
-if __name__ == "__main__":
-    result = run_pipeline("data/warehouse_raw.csv", "data/warehouse_cleaned.csv")
-    print(result)
+@app.get("/forecast")
+def get_forecast(days: int = 7):
+
+    df = load_data(DATA_PATH)
+
+    result = forecast_demand(df, days)
+
+    return result.to_dict(orient="records")
+
+
+@app.get("/stockout-risk")
+def get_stockout_risk():
+
+    df = load_data(DATA_PATH)
+
+    result = calculate_stockout(df)
+
+    return result.to_dict(orient="records")

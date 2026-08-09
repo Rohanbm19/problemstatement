@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from datetime import datetime
+
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
 
 from app.database import Base
@@ -7,8 +9,39 @@ from app.database import Base
 class Transaction(Base):
     __tablename__ = "transactions"
 
-    id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
-    type = Column(String, nullable=False)
-    quantity = Column(Integer, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    item_id = Column(
+        String(50),
+        nullable=False,
+        index=True
+    )
+
+    transaction_type = Column(
+        String(20),
+        nullable=False
+    )
+
+    quantity = Column(
+        Integer,
+        nullable=False
+    )
+
+    location = Column(
+        String(50),
+        nullable=True
+    )
+
+    notes = Column(
+        String(500),
+        nullable=True
+    )
+
+    created_at = Column(
+        DateTime,
+        server_default=func.now()
+    )

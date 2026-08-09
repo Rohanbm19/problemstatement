@@ -1,9 +1,23 @@
 import pandas as pd
 
 
-def prepare_features(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.copy()
-    df["Date"] = pd.to_datetime(df["Date"])
-    df = df.sort_values("Date")
-    df["Lag_1"] = df["Demand"].shift(1)
+def load_data(path: str):
+    df = pd.read_csv(path)
+
+    required_columns = [
+        "item_id",
+        "stock_level",
+        "reorder_point",
+        "lead_time_days",
+        "daily_demand",
+        "demand_std_dev",
+    ]
+
+    missing = [col for col in required_columns if col not in df.columns]
+
+    if missing:
+        raise ValueError(f"Missing columns: {missing}")
+
+    df = df.dropna(subset=required_columns)
+
     return df

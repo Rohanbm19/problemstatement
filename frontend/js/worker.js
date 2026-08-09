@@ -1,9 +1,11 @@
 let transactionType = "receive";
 
+const API_URL = "http://127.0.0.1:8000";
 
-/* =========================
-   ROLE SWITCH
-========================= */
+
+// =========================
+// ROLE SWITCH
+// =========================
 
 function switchRole() {
 
@@ -11,197 +13,229 @@ function switchRole() {
         document.getElementById("roleSelect").value;
 
     if (role === "manager") {
-
-        window.location.href =
-            "manager.html";
-
+        window.location.href = "manager.html";
     }
-
 }
 
 
-/* =========================
-   HOME
-========================= */
+// =========================
+// HOME
+// =========================
 
 function goHome() {
 
-    window.location.href =
-        "index.html";
-
+    window.location.href = "index.html";
 }
 
 
-/* =========================
-   TRANSACTION TYPE
-========================= */
+// =========================
+// TRANSACTION TYPE
+// =========================
 
-const transactionButtons =
-    document.querySelectorAll(
-        ".transaction-type"
-    );
+document.addEventListener("DOMContentLoaded", function () {
+
+    const transactionButtons =
+        document.querySelectorAll(".transaction-type");
 
 
-transactionButtons.forEach(function(button) {
+    transactionButtons.forEach(function (button) {
 
-    button.addEventListener(
-        "click",
-        function() {
+        button.addEventListener("click", function () {
 
-            transactionButtons.forEach(
-                function(btn) {
+            transactionButtons.forEach(function (btn) {
 
-                    btn.classList.remove(
-                        "active"
-                    );
+                btn.classList.remove("active");
 
-                }
-            );
+            });
 
 
             this.classList.add("active");
 
-
             transactionType =
                 this.dataset.type;
 
+        });
+
+    });
+
+
+    // =========================
+    // SUBMIT TRANSACTION
+    // =========================
+
+    const form =
+        document.getElementById("transactionForm");
+
+
+    if (!form) {
+
+        console.error(
+            "transactionForm not found"
+        );
+
+        return;
+    }
+
+
+    form.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+
+        const productElement =
+            document.getElementById("product");
+
+
+        const quantityElement =
+            document.getElementById("quantity");
+
+
+        const locationElement =
+            document.getElementById("location");
+
+
+        const notesElement =
+            document.getElementById("notes");
+
+
+        if (!productElement ||
+            !quantityElement ||
+            !locationElement) {
+
+            alert(
+                "Product, quantity or location field is missing."
+            );
+
+            return;
         }
-    );
-
-});
 
 
-/* =========================
-   SUBMIT TRANSACTION
-========================= */
-
-document
-    .getElementById("transactionForm")
-    .addEventListener(
-        "submit",
-        function(event) {
-
-            event.preventDefault();
+        const product =
+            productElement.value.trim();
 
 
-            const product =
-                document.getElementById(
-                    "product"
-                ).value;
+        const quantity =
+            parseInt(quantityElement.value);
 
 
-            const quantity =
-                document.getElementById(
-                    "quantity"
-                ).value;
+        const location =
+            locationElement.value;
 
 
-            const location =
-                document.getElementById(
-                    "location"
-                ).value;
+        const notes =
+            notesElement
+                ? notesElement.value.trim()
+                : "";
 
 
-            if (!product || !quantity) {
+        // =========================
+        // VALIDATION
+        // =========================
+
+        if (!product) {
+
+            alert("Please enter a Product ID.");
+
+            return;
+        }
+
+
+        if (!quantity || quantity <= 0) {
+
+            alert(
+                "Please enter a valid quantity."
+            );
+
+            return;
+        }
+
+
+        // =========================
+        // SEND TO BACKEND
+        // =========================
+
+        const transactionData = {
+
+            item_id: product,
+
+            transaction_type:
+                transactionType,
+
+            quantity:
+                quantity,
+
+            location:
+                location,
+
+            notes:
+                notes
+
+        };
+
+
+        console.log(
+            "Sending transaction:",
+            transactionData
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_URL}/transactions/`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                transactionData
+                            )
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            console.log(
+                "Backend response:",
+                data
+            );
+
+
+            // =========================
+            // BACKEND ERROR
+            // =========================
+
+            if (!response.ok) {
 
                 alert(
-                    "Please select a product and enter the quantity."
+                    data.detail ||
+                    "Backend rejected the transaction."
                 );
 
                 return;
-
             }
 
 
-            /* ADD TO RECENT TRANSACTIONS */
+            // =========================
+            // SUCCESS
+            // =========================
 
-            const list =
-                document.getElementById(
-                    "transactionList"
-                );
+            addTransactionToUI(
+                product,
+                transactionType,
+                quantity,
+                location
+            );
 
-
-            let icon = "📥";
-
-            let cssClass = "receive";
-
-            let sign = "+";
-
-
-            if (transactionType === "dispatch") {
-
-                icon = "📤";
-
-                cssClass = "dispatch";
-
-                sign = "-";
-
-            }
-
-
-            if (transactionType === "damaged") {
-
-                icon = "⚠️";
-
-                cssClass = "damaged";
-
-                sign = "-";
-
-            }
-
-
-            if (transactionType === "return") {
-
-                icon = "↩️";
-
-                cssClass = "receive";
-
-                sign = "+";
-
-            }
-
-
-            const item =
-                document.createElement("div");
-
-
-            item.className =
-                "transaction-item";
-
-
-            item.innerHTML = `
-
-                <div class="transaction-icon ${cssClass}">
-                    ${icon}
-                </div>
-
-                <div class="transaction-info">
-
-                    <strong>
-                        ${product}
-                    </strong>
-
-                    <span>
-                        ${transactionType}
-                        • Just now
-                        • ${location}
-                    </span>
-
-                </div>
-
-                <strong class="${sign === '+' ? 'positive' : 'negative'}">
-
-                    ${sign}${quantity}
-
-                </strong>
-
-            `;
-
-
-            list.prepend(item);
-
-
-            /* SUCCESS MESSAGE */
 
             const success =
                 document.getElementById(
@@ -209,28 +243,187 @@ document
                 );
 
 
-            success.style.display =
-                "block";
+            if (success) {
+
+                success.innerHTML =
+                    `✓ Transaction recorded successfully! 
+                     Current stock: 
+                     ${data.inventory.stock_level}`;
+
+                success.style.display =
+                    "block";
 
 
-            setTimeout(
-                function() {
+                setTimeout(function () {
 
                     success.style.display =
                         "none";
 
-                },
-                3000
+                }, 4000);
+
+            }
+
+
+            // =========================
+            // RESET FORM
+            // =========================
+
+            form.reset();
+
+
+            // Keep receive selected
+            transactionType =
+                "receive";
+
+
+            document
+                .querySelectorAll(
+                    ".transaction-type"
+                )
+                .forEach(function (btn) {
+
+                    btn.classList.remove(
+                        "active"
+                    );
+
+                });
+
+
+            const receiveButton =
+                document.querySelector(
+                    '[data-type="receive"]'
+                );
+
+
+            if (receiveButton) {
+
+                receiveButton.classList.add(
+                    "active"
+                );
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "Backend connection error:",
+                error
             );
 
 
-            /* RESET FORM */
-
-            document
-                .getElementById(
-                    "transactionForm"
-                )
-                .reset();
+            alert(
+                "Backend is not running or cannot be reached.\n\n" +
+                "Please start FastAPI on http://127.0.0.1:8000"
+            );
 
         }
-    );
+
+    });
+
+});
+
+
+// =========================
+// ADD TRANSACTION TO UI
+// =========================
+
+function addTransactionToUI(
+    product,
+    type,
+    quantity,
+    location
+) {
+
+    const list =
+        document.getElementById(
+            "transactionList"
+        );
+
+
+    if (!list) return;
+
+
+    let icon = "📥";
+
+    let cssClass = "receive";
+
+    let sign = "+";
+
+
+    if (type === "dispatch") {
+
+        icon = "📤";
+
+        cssClass = "dispatch";
+
+        sign = "-";
+
+    }
+
+
+    if (type === "damaged") {
+
+        icon = "⚠️";
+
+        cssClass = "damaged";
+
+        sign = "-";
+
+    }
+
+
+    if (type === "return") {
+
+        icon = "↩️";
+
+        cssClass = "receive";
+
+        sign = "+";
+
+    }
+
+
+    const item =
+        document.createElement("div");
+
+
+    item.className =
+        "transaction-item";
+
+
+    item.innerHTML = `
+
+        <div class="transaction-icon ${cssClass}">
+            ${icon}
+        </div>
+
+        <div class="transaction-info">
+
+            <strong>
+                ${product}
+            </strong>
+
+            <span>
+                ${type}
+                • Just now
+                • ${location}
+            </span>
+
+        </div>
+
+        <strong class="${
+            sign === "+"
+                ? "positive"
+                : "negative"
+        }">
+
+            ${sign}${quantity}
+
+        </strong>
+
+    `;
+
+
+    list.prepend(item);
+}
