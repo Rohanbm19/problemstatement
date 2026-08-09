@@ -3,9 +3,9 @@ let transactionType = "receive";
 const API_URL = "http://127.0.0.1:8000";
 
 
-// =========================
-// ROLE SWITCH
-// =========================
+/* =========================================================
+   ROLE SWITCH
+========================================================= */
 
 function switchRole() {
 
@@ -13,320 +13,435 @@ function switchRole() {
         document.getElementById("roleSelect").value;
 
     if (role === "manager") {
+
         window.location.href = "manager.html";
+
     }
+
 }
 
 
-// =========================
-// HOME
-// =========================
+/* =========================================================
+   HOME
+========================================================= */
 
 function goHome() {
 
     window.location.href = "index.html";
+
 }
 
 
-// =========================
-// TRANSACTION TYPE
-// =========================
+/* =========================================================
+   TRANSACTION TYPE
+========================================================= */
 
-document.addEventListener("DOMContentLoaded", function () {
-
-    const transactionButtons =
-        document.querySelectorAll(".transaction-type");
+const transactionButtons =
+    document.querySelectorAll(".transaction-type");
 
 
-    transactionButtons.forEach(function (button) {
+transactionButtons.forEach(function (button) {
 
-        button.addEventListener("click", function () {
+    button.addEventListener("click", function () {
 
-            transactionButtons.forEach(function (btn) {
+        transactionButtons.forEach(function (btn) {
 
-                btn.classList.remove("active");
-
-            });
-
-
-            this.classList.add("active");
-
-            transactionType =
-                this.dataset.type;
+            btn.classList.remove("active");
 
         });
 
-    });
+
+        this.classList.add("active");
 
 
-    // =========================
-    // SUBMIT TRANSACTION
-    // =========================
-
-    const form =
-        document.getElementById("transactionForm");
-
-
-    if (!form) {
-
-        console.error(
-            "transactionForm not found"
-        );
-
-        return;
-    }
-
-
-    form.addEventListener("submit", async function (event) {
-
-        event.preventDefault();
-
-
-        const productElement =
-            document.getElementById("product");
-
-
-        const quantityElement =
-            document.getElementById("quantity");
-
-
-        const locationElement =
-            document.getElementById("location");
-
-
-        const notesElement =
-            document.getElementById("notes");
-
-
-        if (!productElement ||
-            !quantityElement ||
-            !locationElement) {
-
-            alert(
-                "Product, quantity or location field is missing."
-            );
-
-            return;
-        }
-
-
-        const product =
-            productElement.value.trim();
-
-
-        const quantity =
-            parseInt(quantityElement.value);
-
-
-        const location =
-            locationElement.value;
-
-
-        const notes =
-            notesElement
-                ? notesElement.value.trim()
-                : "";
-
-
-        // =========================
-        // VALIDATION
-        // =========================
-
-        if (!product) {
-
-            alert("Please enter a Product ID.");
-
-            return;
-        }
-
-
-        if (!quantity || quantity <= 0) {
-
-            alert(
-                "Please enter a valid quantity."
-            );
-
-            return;
-        }
-
-
-        // =========================
-        // SEND TO BACKEND
-        // =========================
-
-        const transactionData = {
-
-            item_id: product,
-
-            transaction_type:
-                transactionType,
-
-            quantity:
-                quantity,
-
-            location:
-                location,
-
-            notes:
-                notes
-
-        };
+        transactionType =
+            this.dataset.type;
 
 
         console.log(
-            "Sending transaction:",
-            transactionData
+            "Transaction type:",
+            transactionType
         );
-
-
-        try {
-
-            const response =
-                await fetch(
-                    `${API_URL}/transactions/`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify(
-                                transactionData
-                            )
-                    }
-                );
-
-
-            const data =
-                await response.json();
-
-
-            console.log(
-                "Backend response:",
-                data
-            );
-
-
-            // =========================
-            // BACKEND ERROR
-            // =========================
-
-            if (!response.ok) {
-
-                alert(
-                    data.detail ||
-                    "Backend rejected the transaction."
-                );
-
-                return;
-            }
-
-
-            // =========================
-            // SUCCESS
-            // =========================
-
-            addTransactionToUI(
-                product,
-                transactionType,
-                quantity,
-                location
-            );
-
-
-            const success =
-                document.getElementById(
-                    "successMessage"
-                );
-
-
-            if (success) {
-
-                success.innerHTML =
-                    `✓ Transaction recorded successfully! 
-                     Current stock: 
-                     ${data.inventory.stock_level}`;
-
-                success.style.display =
-                    "block";
-
-
-                setTimeout(function () {
-
-                    success.style.display =
-                        "none";
-
-                }, 4000);
-
-            }
-
-
-            // =========================
-            // RESET FORM
-            // =========================
-
-            form.reset();
-
-
-            // Keep receive selected
-            transactionType =
-                "receive";
-
-
-            document
-                .querySelectorAll(
-                    ".transaction-type"
-                )
-                .forEach(function (btn) {
-
-                    btn.classList.remove(
-                        "active"
-                    );
-
-                });
-
-
-            const receiveButton =
-                document.querySelector(
-                    '[data-type="receive"]'
-                );
-
-
-            if (receiveButton) {
-
-                receiveButton.classList.add(
-                    "active"
-                );
-
-            }
-
-
-        } catch (error) {
-
-            console.error(
-                "Backend connection error:",
-                error
-            );
-
-
-            alert(
-                "Backend is not running or cannot be reached.\n\n" +
-                "Please start FastAPI on http://127.0.0.1:8000"
-            );
-
-        }
 
     });
 
 });
 
 
-// =========================
-// ADD TRANSACTION TO UI
-// =========================
+/* =========================================================
+   SUBMIT TRANSACTION
+========================================================= */
+
+const transactionForm =
+    document.getElementById("transactionForm");
+
+
+if (transactionForm) {
+
+    transactionForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            /* =================================================
+               GET FORM VALUES
+            ================================================= */
+
+            const productElement =
+                document.getElementById("product");
+
+
+            const quantityElement =
+                document.getElementById("quantity");
+
+
+            const locationElement =
+                document.getElementById("location");
+
+
+            const notesElement =
+                document.getElementById("notes");
+
+
+            /* =================================================
+               CHECK ELEMENTS
+            ================================================= */
+
+            if (!productElement) {
+
+                console.error(
+                    "Product input with id='product' not found."
+                );
+
+                alert(
+                    "Product input not found. Check worker.html."
+                );
+
+                return;
+
+            }
+
+
+            if (!quantityElement) {
+
+                console.error(
+                    "Quantity input not found."
+                );
+
+                return;
+
+            }
+
+
+            /* =================================================
+               READ VALUES
+            ================================================= */
+
+            const product =
+                productElement.value.trim();
+
+
+            const quantity =
+                Number(quantityElement.value);
+
+
+            const location =
+                locationElement
+                    ? locationElement.value
+                    : null;
+
+
+            const notes =
+                notesElement
+                    ? notesElement.value.trim()
+                    : null;
+
+
+            /* =================================================
+               VALIDATION
+            ================================================= */
+
+            if (!product) {
+
+                alert(
+                    "Please enter the Product ID."
+                );
+
+                return;
+
+            }
+
+
+            if (!quantity || quantity <= 0) {
+
+                alert(
+                    "Please enter a valid quantity."
+                );
+
+                return;
+
+            }
+
+
+            /* =================================================
+               DISABLE BUTTON
+            ================================================= */
+
+            const submitButton =
+                transactionForm.querySelector(
+                    'button[type="submit"]'
+                );
+
+
+            if (submitButton) {
+
+                submitButton.disabled = true;
+
+                submitButton.innerText =
+                    "Saving...";
+
+            }
+
+
+            /* =================================================
+               SEND TO FASTAPI
+            ================================================= */
+
+            try {
+
+                console.log(
+                    "Sending transaction to backend..."
+                );
+
+
+                console.log({
+
+                    item_id: product,
+
+                    transaction_type:
+                        transactionType,
+
+                    quantity: quantity,
+
+                    location: location,
+
+                    notes: notes
+
+                });
+
+
+                const response =
+                    await fetch(
+                        `${API_URL}/transactions/`,
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body: JSON.stringify({
+
+                                item_id:
+                                    product,
+
+                                transaction_type:
+                                    transactionType,
+
+                                quantity:
+                                    quantity,
+
+                                location:
+                                    location,
+
+                                notes:
+                                    notes
+
+                            })
+
+                        }
+                    );
+
+
+                /* =================================================
+                   READ RESPONSE
+                ================================================= */
+
+                const result =
+                    await response.json();
+
+
+                console.log(
+                    "Backend response:",
+                    result
+                );
+
+
+                /* =================================================
+                   BACKEND ERROR
+                ================================================= */
+
+                if (!response.ok) {
+
+                    alert(
+                        result.detail ||
+                        "Transaction failed."
+                    );
+
+                    return;
+
+                }
+
+
+                /* =================================================
+                   GET UPDATED STOCK
+                ================================================= */
+
+                const newStock =
+                    result.inventory.stock_level;
+
+
+                /* =================================================
+                   ADD TRANSACTION TO UI
+                ================================================= */
+
+                addTransactionToUI(
+                    product,
+                    transactionType,
+                    quantity,
+                    location
+                );
+
+
+                /* =================================================
+                   SHOW SUCCESS
+                ================================================= */
+
+                const success =
+                    document.getElementById(
+                        "successMessage"
+                    );
+
+
+                if (success) {
+
+                    success.innerHTML =
+                        `✓ Transaction recorded successfully! ` +
+                        `Updated stock: ${newStock}`;
+
+                    success.style.display =
+                        "block";
+
+
+                    setTimeout(function () {
+
+                        success.style.display =
+                            "none";
+
+                    }, 5000);
+
+                }
+
+
+                /* =================================================
+                   SHOW UPDATED STOCK
+                ================================================= */
+
+                alert(
+                    "Transaction successful!\n\n" +
+                    "Product: " + product + "\n" +
+                    "Transaction: " + transactionType + "\n" +
+                    "Quantity: " + quantity + "\n\n" +
+                    "Updated stock: " + newStock
+                );
+
+
+                /* =================================================
+                   RESET FORM
+                ================================================= */
+
+                transactionForm.reset();
+
+
+                /* =================================================
+                   RESET TRANSACTION TYPE
+                ================================================= */
+
+                transactionType = "receive";
+
+
+                transactionButtons.forEach(
+                    function (btn) {
+
+                        btn.classList.remove(
+                            "active"
+                        );
+
+                    }
+                );
+
+
+                const receiveButton =
+                    document.querySelector(
+                        '.transaction-type[data-type="receive"]'
+                    );
+
+
+                if (receiveButton) {
+
+                    receiveButton.classList.add(
+                        "active"
+                    );
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Backend connection error:",
+                    error
+                );
+
+
+                alert(
+                    "Cannot connect to backend.\n\n" +
+                    "Make sure FastAPI is running at:\n" +
+                    API_URL
+                );
+
+            }
+
+            finally {
+
+                if (submitButton) {
+
+                    submitButton.disabled =
+                        false;
+
+                    submitButton.innerText =
+                        "Submit Transaction";
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ADD TRANSACTION TO UI
+========================================================= */
 
 function addTransactionToUI(
     product,
@@ -341,7 +456,11 @@ function addTransactionToUI(
         );
 
 
-    if (!list) return;
+    if (!list) {
+
+        return;
+
+    }
 
 
     let icon = "📥";
@@ -407,7 +526,7 @@ function addTransactionToUI(
             <span>
                 ${type}
                 • Just now
-                • ${location}
+                • ${location || "N/A"}
             </span>
 
         </div>
@@ -426,4 +545,5 @@ function addTransactionToUI(
 
 
     list.prepend(item);
+
 }

@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -11,6 +12,7 @@
 
     <link rel="stylesheet"
           href="css/style.css">
+
 </head>
 
 <body>
@@ -18,7 +20,7 @@
 <header class="topbar">
 
     <div class="brand-small">
-        <span></span>
+        <span>📦</span>
         <strong>TwinStock AI</strong>
     </div>
 
@@ -88,7 +90,7 @@
 
             <div>
                 <p>Total Products</p>
-                <h2>--</h2>
+                <h2 id="totalProducts">--</h2>
             </div>
 
         </div>
@@ -102,7 +104,7 @@
 
             <div>
                 <p>Total Inventory</p>
-                <h2>24,820</h2>
+                <h2 id="totalInventory">--</h2>
                 <span>units</span>
             </div>
 
@@ -117,7 +119,7 @@
 
             <div>
                 <p>High Risk</p>
-                <h2>8</h2>
+                <h2>--</h2>
                 <span>products</span>
             </div>
 
@@ -132,7 +134,7 @@
 
             <div>
                 <p>Overstock</p>
-                <h2>12</h2>
+                <h2>--</h2>
                 <span>products</span>
             </div>
 
@@ -154,7 +156,7 @@
 
                 <div>
 
-                    <h2>📦 Update Inventory</h2>
+                    <h2>Update Inventory</h2>
 
                     <p>
                         Record a new warehouse transaction
@@ -168,7 +170,7 @@
             <form id="transactionForm">
 
 
-                <!-- PRODUCT -->
+                <!-- PRODUCT ID -->
 
                 <div class="form-group">
 
@@ -376,99 +378,7 @@
                 class="transaction-list"
                 id="transactionList">
 
-
-                <!-- Example transaction -->
-
-                <div class="transaction-item">
-
-                    <div class="transaction-icon dispatch">
-                        📤
-                    </div>
-
-                    <div class="transaction-info">
-
-                        <strong>Laptop</strong>
-
-                        <span>
-                            Dispatch • 10:30 AM
-                        </span>
-
-                    </div>
-
-                    <strong class="negative">
-                        -30
-                    </strong>
-
-                </div>
-
-
-                <div class="transaction-item">
-
-                    <div class="transaction-icon receive">
-                        📥
-                    </div>
-
-                    <div class="transaction-info">
-
-                        <strong>Mouse</strong>
-
-                        <span>
-                            Receive • 10:15 AM
-                        </span>
-
-                    </div>
-
-                    <strong class="positive">
-                        +100
-                    </strong>
-
-                </div>
-
-
-                <div class="transaction-item">
-
-                    <div class="transaction-icon damaged">
-                        ⚠️
-                    </div>
-
-                    <div class="transaction-info">
-
-                        <strong>Keyboard</strong>
-
-                        <span>
-                            Damaged • 9:45 AM
-                        </span>
-
-                    </div>
-
-                    <strong class="negative">
-                        -5
-                    </strong>
-
-                </div>
-
-
-                <div class="transaction-item">
-
-                    <div class="transaction-icon receive">
-                        📥
-                    </div>
-
-                    <div class="transaction-info">
-
-                        <strong>Monitor</strong>
-
-                        <span>
-                            Receive • 9:20 AM
-                        </span>
-
-                    </div>
-
-                    <strong class="positive">
-                        +50
-                    </strong>
-
-                </div>
+                <!-- New transactions will be added here -->
 
             </div>
 

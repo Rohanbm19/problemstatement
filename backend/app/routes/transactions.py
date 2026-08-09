@@ -13,13 +13,26 @@ router = APIRouter(
 )
 
 
+# ============================================================
+# REQUEST MODEL
+# ============================================================
+
 class TransactionCreate(BaseModel):
+
     item_id: str
+
     transaction_type: str
+
     quantity: int
+
     location: str | None = None
+
     notes: str | None = None
 
+
+# ============================================================
+# CREATE TRANSACTION
+# ============================================================
 
 @router.post("/")
 def create_transaction(
@@ -27,19 +40,21 @@ def create_transaction(
     db: Session = Depends(get_db)
 ):
 
-    # ------------------------------------------------
+    # --------------------------------------------------------
     # Validate quantity
-    # ------------------------------------------------
+    # --------------------------------------------------------
 
     if data.quantity <= 0:
+
         raise HTTPException(
             status_code=400,
             detail="Quantity must be greater than 0"
         )
 
-    # ------------------------------------------------
+
+    # --------------------------------------------------------
     # Find inventory item
-    # ------------------------------------------------
+    # --------------------------------------------------------
 
     item = (
         db.query(InventoryItem)
@@ -49,35 +64,63 @@ def create_transaction(
         .first()
     )
 
+
     if not item:
+
         raise HTTPException(
             status_code=404,
             detail="Product not found"
         )
 
-    # ------------------------------------------------
+
+    # --------------------------------------------------------
     # Normalize transaction type
-    # ------------------------------------------------
+    # --------------------------------------------------------
 
-    transaction_type = data.transaction_type.lower().strip()
+    transaction_type = (
+        data.transaction_type
+        .lower()
+        .strip()
+    )
 
-    # ------------------------------------------------
-    # Update inventory stock
-    # ------------------------------------------------
 
-    if transaction_type in ["receive", "return"]:
+    # --------------------------------------------------------
+    # RECEIVE / RETURN
+    # Add stock
+    # --------------------------------------------------------
+
+    if transaction_type in [
+        "receive",
+        "return"
+    ]:
 
         item.stock_level += data.quantity
 
-    elif transaction_type in ["dispatch", "damaged"]:
+
+    # --------------------------------------------------------
+    # DISPATCH / DAMAGED
+    # Remove stock
+    # --------------------------------------------------------
+
+    elif transaction_type in [
+        "dispatch",
+        "damaged"
+    ]:
 
         if item.stock_level < data.quantity:
+
             raise HTTPException(
                 status_code=400,
                 detail="Insufficient stock"
             )
 
+
         item.stock_level -= data.quantity
+
+
+    # --------------------------------------------------------
+    # INVALID TYPE
+    # --------------------------------------------------------
 
     else:
 
@@ -89,48 +132,81 @@ def create_transaction(
             )
         )
 
-    # ------------------------------------------------
-    # Create transaction record
-    # ------------------------------------------------
+
+    # --------------------------------------------------------
+    # CREATE TRANSACTION RECORD
+    # --------------------------------------------------------
 
     transaction = Transaction(
+
         item_id=data.item_id,
+
         transaction_type=transaction_type,
+
         quantity=data.quantity,
+
         location=data.location,
+
         notes=data.notes
+
     )
+
 
     db.add(transaction)
 
-    # ------------------------------------------------
-    # Save changes
-    # ------------------------------------------------
+
+    # --------------------------------------------------------
+    # SAVE
+    # --------------------------------------------------------
 
     db.commit()
 
+
     db.refresh(item)
+
     db.refresh(transaction)
 
-    # ------------------------------------------------
-    # Return result
-    # ------------------------------------------------
+
+    # --------------------------------------------------------
+    # RESPONSE
+    # --------------------------------------------------------
 
     return {
+
         "message": "Transaction successful",
 
         "transaction": {
+
             "id": transaction.id,
-            "item_id": transaction.item_id,
-            "type": transaction.transaction_type,
-            "quantity": transaction.quantity,
-            "location": transaction.location,
-            "notes": transaction.notes,
-            "created_at": transaction.created_at
+
+            "item_id":
+                transaction.item_id,
+
+            "type":
+                transaction.transaction_type,
+
+            "quantity":
+                transaction.quantity,
+
+            "location":
+                transaction.location,
+
+            "notes":
+                transaction.notes,
+
+            "created_at":
+                transaction.created_at
+
         },
 
         "inventory": {
-            "item_id": item.item_id,
-            "stock_level": item.stock_level
+
+            "item_id":
+                item.item_id,
+
+            "stock_level":
+                item.stock_level
+
         }
+
     }
