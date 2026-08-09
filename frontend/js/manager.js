@@ -1,249 +1,960 @@
-const API_BASE = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "/api";
-const API_URL = API_BASE.replace(/\/$/, "");
+/* =========================================================
+   TwinStock AI - Manager Dashboard
+   Granite-powered AI Suggestions
+========================================================= */
+
+const BACKEND_URL = "http://127.0.0.1:8000";
+
+
+/* =========================================================
+   ROLE SWITCHING
+========================================================= */
 
 function switchRole() {
 
+    const roleSelect =
+        document.getElementById("roleSelect");
+
+    if (!roleSelect) return;
+
     const role =
-        document.getElementById("roleSelect").value;
+        roleSelect.value;
 
     if (role === "worker") {
 
-        window.location.href = "worker.html";
-
+        window.location.href =
+            "worker.html";
     }
-
 }
 
+
+/* =========================================================
+   LOAD DASHBOARD
+========================================================= */
 
 async function loadDashboardData() {
 
     try {
 
-        const response = await fetch(`${API_URL}/inventory/`);
-
-        if (!response.ok) {
-            throw new Error("Unable to load inventory from backend.");
-        }
-
-        const inventory = await response.json();
-
-        const totalProducts = inventory.length;
-        const totalInventory = inventory.reduce((sum, item) => sum + (item.stock_level || 0), 0);
-        const highRisk = inventory.filter((item) => (item.stock_level || 0) <= (item.reorder_point || 0)).length;
-        const overstock = inventory.filter((item) => (item.stock_level || 0) > ((item.reorder_point || 0) * 3)).length;
-
-        document.getElementById("totalProducts").textContent = totalProducts.toLocaleString();
-        document.getElementById("totalInventory").textContent = totalInventory.toLocaleString();
-        document.getElementById("highRisk").textContent = highRisk.toLocaleString();
-        document.getElementById("overstock").textContent = overstock.toLocaleString();
-
-        const suggestionCards = document.querySelectorAll(".suggestion-card");
-        const itemsWithRisk = await Promise.all(
-            inventory.map(async (item) => {
-                try {
-                    const riskResponse = await fetch(`${API_URL}/inventory/${encodeURIComponent(item.item_id)}/stockout-risk`);
-                    const riskData = await riskResponse.json();
-                    return {
-                        ...item,
-                        risk: riskData.risk || "LOW",
-                        daysUntilStockout: riskData.days_until_stockout
-                    };
-                } catch (error) {
-                    return {
-                        ...item,
-                        risk: "LOW",
-                        daysUntilStockout: null
-                    };
-                }
-            })
+        console.log(
+            "Loading TwinStock AI dashboard..."
         );
 
-        const highRiskItems = itemsWithRisk.filter((item) => item.risk === "HIGH").sort((a, b) => (a.stock_level || 0) - (b.stock_level || 0));
-        const mediumRiskItems = itemsWithRisk.filter((item) => item.risk === "MEDIUM").sort((a, b) => (a.stock_level || 0) - (b.stock_level || 0));
-        const overstockItems = itemsWithRisk.filter((item) => (item.stock_level || 0) > ((item.reorder_point || 0) * 3)).sort((a, b) => (b.stock_level || 0) - (a.stock_level || 0));
 
-        const suggestions = [
-            highRiskItems[0],
-            mediumRiskItems[0] || highRiskItems[1] || itemsWithRisk[0],
-            overstockItems[0] || itemsWithRisk[0]
-        ].filter(Boolean);
+        /* =====================================================
+           GET INVENTORY
+        ===================================================== */
 
-        suggestionCards.forEach((card, index) => {
-            const item = suggestions[index];
+        const inventoryResponse =
+            await fetch(
+                `${BACKEND_URL}/inventory/`
+            );
 
-            if (!item) {
-                card.style.display = "none";
-                return;
+
+        if (!inventoryResponse.ok) {
+
+            throw new Error(
+                "Unable to load inventory."
+            );
+        }
+
+
+        const inventory =
+            await inventoryResponse.json();
+
+
+        console.log(
+            "Inventory:",
+            inventory
+        );
+
+
+        /* =====================================================
+           SUMMARY CARDS
+        ===================================================== */
+
+        const totalProducts =
+            inventory.length;
+
+
+        const totalInventory =
+            inventory.reduce(
+                (sum, item) =>
+                    sum +
+                    Number(
+                        item.stock_level || 0
+                    ),
+                0
+            );
+
+
+        document.getElementById(
+            "totalProducts"
+        ).textContent =
+            totalProducts.toLocaleString();
+
+
+        document.getElementById(
+            "totalInventory"
+        ).textContent =
+            totalInventory.toLocaleString();
+
+
+        /* =====================================================
+           GET GRANITE FORECAST FOR EVERY PRODUCT
+        ===================================================== */
+
+        console.log(
+            "Generating Granite forecasts for AI Suggestions..."
+        );
+
+
+        const itemsWithForecast =
+            await Promise.all(
+
+                inventory.map(
+                    async function (item) {
+
+                        try {
+
+                            const itemId =
+                                item.item_id;
+
+
+                            /* =================================
+                               CALL SAME FORECAST API
+                               USED BY DEMAND FORECASTING
+                            ================================= */
+
+                            const forecastResponse =
+                                await fetch(
+                                    `${BACKEND_URL}/forecast/${encodeURIComponent(
+                                        itemId
+                                    )}?horizon=7`,
+                                    {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type":
+                                                "application/json"
+                                        }
+                                    }
+                                );
+
+
+                            if (!forecastResponse.ok) {
+
+                                throw new Error(
+                                    `Forecast failed for ${itemId}`
+                                );
+                            }
+
+
+                            const forecastData =
+                                await forecastResponse.json();
+
+
+                            const forecast =
+                                Array.isArray(
+                                    forecastData.forecast
+                                )
+                                    ? forecastData.forecast
+                                    : [];
+
+
+                            /* =================================
+                               TOTAL 7-DAY PREDICTED DEMAND
+                            ================================= */
+
+                            const totalPredictedDemand =
+                                forecast.reduce(
+                                    (
+                                        total,
+                                        point
+                                    ) =>
+                                        total +
+                                        Number(
+                                            point.predicted_demand ||
+                                            0
+                                        ),
+                                    0
+                                );
+
+
+                            /* =================================
+                               AVERAGE PREDICTED DAILY DEMAND
+                            ================================= */
+
+                            const predictedDailyDemand =
+                                forecast.length > 0
+                                    ? totalPredictedDemand /
+                                      forecast.length
+                                    : 0;
+
+
+                            const currentStock =
+                                Number(
+                                    item.stock_level || 0
+                                );
+
+
+                            /* =================================
+                               PREDICTED STOCKOUT
+                            ================================= */
+
+                            let remainingStock =
+                                currentStock;
+
+
+                            let daysUntilStockout =
+                                null;
+
+
+                            for (
+                                let i = 0;
+                                i < forecast.length;
+                                i++
+                            ) {
+
+                                const demand =
+                                    Number(
+                                        forecast[i]
+                                            .predicted_demand ||
+                                        0
+                                    );
+
+
+                                remainingStock -=
+                                    demand;
+
+
+                                if (
+                                    remainingStock <=
+                                    0
+                                ) {
+
+                                    daysUntilStockout =
+                                        i + 1;
+
+                                    break;
+                                }
+                            }
+
+
+                            /* =================================
+                               RISK CLASSIFICATION
+
+                               ALL BASED ON GRANITE
+                            ================================= */
+
+                            let risk =
+                                "LOW";
+
+
+                            if (
+                                totalPredictedDemand <= 0
+                            ) {
+
+                                risk = "LOW";
+
+                            }
+
+                            else if (
+                                currentStock <
+                                totalPredictedDemand *
+                                0.5
+                            ) {
+
+                                risk = "HIGH";
+
+                            }
+
+                            else if (
+                                currentStock <
+                                totalPredictedDemand
+                            ) {
+
+                                risk = "MEDIUM";
+
+                            }
+
+                            else if (
+                                currentStock >
+                                totalPredictedDemand *
+                                3
+                            ) {
+
+                                risk = "OVERSTOCK";
+
+                            }
+
+
+                            /* =================================
+                               RECOMMENDED REPLENISHMENT
+
+                               Bring stock up to expected
+                               7-day Granite demand.
+                            ================================= */
+
+                            const recommendedQuantity =
+                                Math.max(
+                                    0,
+                                    Math.ceil(
+                                        totalPredictedDemand -
+                                        currentStock
+                                    )
+                                );
+
+
+                            return {
+
+                                ...item,
+
+                                risk: risk,
+
+                                currentStock:
+                                    currentStock,
+
+                                forecast:
+                                    forecast,
+
+                                forecastModel:
+                                    forecastData.model ||
+                                    "Granite Time Series (IBM TTM)",
+
+                                totalPredictedDemand:
+                                    totalPredictedDemand,
+
+                                predictedDailyDemand:
+                                    predictedDailyDemand,
+
+                                daysUntilStockout:
+                                    daysUntilStockout,
+
+                                recommendedQuantity:
+                                    recommendedQuantity
+
+                            };
+
+
+                        } catch (error) {
+
+                            console.error(
+                                `Granite forecast failed for ${item.item_id}:`,
+                                error
+                            );
+
+
+                            return {
+
+                                ...item,
+
+                                risk:
+                                    "UNKNOWN",
+
+                                currentStock:
+                                    Number(
+                                        item.stock_level ||
+                                        0
+                                    ),
+
+                                forecast: [],
+
+                                forecastModel:
+                                    "Unavailable",
+
+                                totalPredictedDemand:
+                                    0,
+
+                                predictedDailyDemand:
+                                    0,
+
+                                daysUntilStockout:
+                                    null,
+
+                                recommendedQuantity:
+                                    0
+
+                            };
+                        }
+
+                    }
+                )
+            );
+
+
+        console.log(
+            "Granite-powered inventory:",
+            itemsWithForecast
+        );
+
+
+        /* =====================================================
+           SUMMARY RISK COUNTS
+        ===================================================== */
+
+        const highRiskItems =
+            itemsWithForecast.filter(
+                item =>
+                    item.risk === "HIGH"
+            );
+
+
+        const mediumRiskItems =
+            itemsWithForecast.filter(
+                item =>
+                    item.risk === "MEDIUM"
+            );
+
+
+        const overstockItems =
+            itemsWithForecast.filter(
+                item =>
+                    item.risk === "OVERSTOCK"
+            );
+
+
+        document.getElementById(
+            "highRisk"
+        ).textContent =
+            highRiskItems.length.toLocaleString();
+
+
+        document.getElementById(
+            "overstock"
+        ).textContent =
+            overstockItems.length.toLocaleString();
+
+
+        /* =====================================================
+           SORT PRODUCTS BY PRIORITY
+        ===================================================== */
+
+        const priorityOrder = {
+
+            HIGH: 1,
+
+            MEDIUM: 2,
+
+            OVERSTOCK: 3,
+
+            LOW: 4,
+
+            UNKNOWN: 5
+
+        };
+
+
+        itemsWithForecast.sort(
+            function (a, b) {
+
+                return (
+                    priorityOrder[a.risk] -
+                    priorityOrder[b.risk]
+                );
             }
+        );
 
-            const riskClass = item.risk === "HIGH" ? "high" : item.risk === "MEDIUM" ? "medium" : "warning";
-            const riskLabel = item.risk === "HIGH" ? "HIGH RISK" : item.risk === "MEDIUM" ? "MEDIUM RISK" : "OVERSTOCK";
-            const message = item.risk === "HIGH"
-                ? `Stockout predicted in <strong>${item.daysUntilStockout || "N/A"} days</strong> based on current demand.`
-                : item.risk === "MEDIUM"
-                    ? `Demand is increasing. Stockout predicted in <strong>${item.daysUntilStockout || "N/A"} days</strong>.`
-                    : `Current inventory may cover <strong>${Math.max(0, item.stock_level || 0)} units</strong> of expected demand.`;
 
-            card.className = `suggestion-card ${riskClass}`;
-            card.innerHTML = `
-                <div class="suggestion-top">
-                    <div class="product-info">
-                        <span class="risk-dot ${item.risk === "HIGH" ? "red-dot" : item.risk === "MEDIUM" ? "orange-dot" : "yellow-dot"}"></span>
-                        <div>
-                            <h3>${item.item_id}</h3>
-                            <span>Product ID: ${item.item_id}</span>
+        /* =====================================================
+           SELECT TOP 3 AI SUGGESTIONS
+        ===================================================== */
+
+        const suggestions =
+            itemsWithForecast
+                .filter(
+                    item =>
+                        item.risk !==
+                        "LOW" &&
+                        item.risk !==
+                        "UNKNOWN"
+                )
+                .slice(0, 3);
+
+
+        /* =====================================================
+           SUGGESTION CARDS
+        ===================================================== */
+
+        const suggestionCards =
+            document.querySelectorAll(
+                ".suggestion-card"
+            );
+
+
+        suggestionCards.forEach(
+            function (
+                card,
+                index
+            ) {
+
+                const item =
+                    suggestions[index];
+
+
+                /* =========================================
+                   NO SUGGESTION
+                ========================================= */
+
+                if (!item) {
+
+                    card.style.display =
+                        "none";
+
+                    return;
+                }
+
+
+                card.style.display =
+                    "block";
+
+
+                /* =========================================
+                   RISK STYLE
+                ========================================= */
+
+                let riskClass;
+                let riskLabel;
+                let riskDot;
+
+
+                if (
+                    item.risk === "HIGH"
+                ) {
+
+                    riskClass =
+                        "high";
+
+                    riskLabel =
+                        "HIGH RISK";
+
+                    riskDot =
+                        "red-dot";
+
+                }
+
+                else if (
+                    item.risk === "MEDIUM"
+                ) {
+
+                    riskClass =
+                        "medium";
+
+                    riskLabel =
+                        "MEDIUM RISK";
+
+                    riskDot =
+                        "orange-dot";
+
+                }
+
+                else {
+
+                    riskClass =
+                        "warning";
+
+                    riskLabel =
+                        "OVERSTOCK";
+
+                    riskDot =
+                        "yellow-dot";
+                }
+
+
+                /* =========================================
+                   MESSAGE
+                ========================================= */
+
+                let message;
+
+
+                if (
+                    item.risk === "HIGH"
+                ) {
+
+                    if (
+                        item.daysUntilStockout
+                    ) {
+
+                        message =
+                            `Granite predicts stockout in ` +
+                            `<strong>${item.daysUntilStockout} days</strong> ` +
+                            `based on the next 7 days of expected demand.`;
+
+                    } else {
+
+                        message =
+                            `Granite predicts demand will exceed ` +
+                            `available inventory within the forecast period.`;
+                    }
+
+                }
+
+                else if (
+                    item.risk === "MEDIUM"
+                ) {
+
+                    message =
+                        `Granite predicts increasing inventory pressure. ` +
+                        `Expected 7-day demand is ` +
+                        `<strong>${item.totalPredictedDemand.toFixed(
+                            2
+                        )} units</strong>.`;
+
+                }
+
+                else {
+
+                    message =
+                        `Granite predicts only ` +
+                        `<strong>${item.totalPredictedDemand.toFixed(
+                            2
+                        )} units</strong> ` +
+                        `of demand over the next 7 days, while current stock is much higher.`;
+                }
+
+
+                /* =========================================
+                   CREATE CARD
+                ========================================= */
+
+                card.className =
+                    `suggestion-card ${riskClass}`;
+
+
+                card.innerHTML = `
+
+                    <div class="suggestion-top">
+
+                        <div class="product-info">
+
+                            <span
+                                class="risk-dot ${riskDot}">
+                            </span>
+
+                            <div>
+
+                                <h3>
+                                    ${item.item_id}
+                                </h3>
+
+                                <span>
+                                    Product ID:
+                                    ${item.item_id}
+                                </span>
+
+                            </div>
+
                         </div>
-                    </div>
-                    <span class="risk-label ${item.risk === "HIGH" ? "high-label" : item.risk === "MEDIUM" ? "medium-label" : "warning-label"}">${riskLabel}</span>
-                </div>
-                <p class="suggestion-message">${message}</p>
-                <div class="suggestion-details">
-                    <div>
-                        <span>Current Stock</span>
-                        <strong>${(item.stock_level || 0).toLocaleString()} units</strong>
-                    </div>
-                    <div>
-                        <span>Daily Demand</span>
-                        <strong>${item.daily_demand || 0}/day</strong>
-                    </div>
-                    <div>
-                        <span>Recommended</span>
-                        <strong>${Math.max(0, (item.reorder_point || 0) - (item.stock_level || 0)).toLocaleString()} units</strong>
-                    </div>
-                </div>
-                <button class="${index === 0 ? "primary-btn" : "secondary-btn"}" data-item-id="${item.item_id}">
-                    View Recommendation →
-                </button>
-            `;
 
-            const button = card.querySelector("button");
-            if (button) {
-                button.addEventListener("click", () => openRecommendation(item.item_id));
+
+                        <span
+                            class="risk-label ${riskClass}-label">
+
+                            ${riskLabel}
+
+                        </span>
+
+                    </div>
+
+
+                    <p class="suggestion-message">
+
+                        ${message}
+
+                    </p>
+
+
+                    <div class="suggestion-details">
+
+
+                        <div>
+
+                            <span>
+                                Current Stock
+                            </span>
+
+                            <strong>
+
+                                ${item.currentStock.toLocaleString()}
+                                units
+
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Granite 7-Day Demand
+                            </span>
+
+                            <strong>
+
+                                ${item.totalPredictedDemand.toFixed(
+                                    2
+                                )}
+                                units
+
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Recommended
+                            </span>
+
+                            <strong>
+
+                                ${item.recommendedQuantity.toLocaleString()}
+                                units
+
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div
+                        style="
+                            margin-top:12px;
+                            font-size:12px;
+                            color:#64748b;
+                        "
+                    >
+
+                        🤖 Powered by
+                        ${item.forecastModel}
+
+                    </div>
+
+
+                    <button
+                        class="${
+                            index === 0
+                                ? "primary-btn"
+                                : "secondary-btn"
+                        }"
+                        type="button"
+                    >
+
+                        View Recommendation →
+
+                    </button>
+
+                `;
+
+
+                /* =========================================
+                   BUTTON
+                ========================================= */
+
+                const button =
+                    card.querySelector(
+                        "button"
+                    );
+
+
+                if (button) {
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+                            openRecommendation(
+                                item.item_id
+                            );
+
+                        }
+                    );
+                }
+
             }
-        });
+        );
 
-    } catch (error) {
-        console.error("Dashboard load failed:", error);
-        document.querySelector(".suggestions-panel")?.insertAdjacentHTML("beforeend", `<p class="error-message">Unable to reach the backend API. Start the backend and proxy server first.</p>`);
     }
 
+    catch (error) {
+
+        console.error(
+            "Dashboard error:",
+            error
+        );
+
+
+        const panel =
+            document.querySelector(
+                ".suggestions-panel"
+            );
+
+
+        if (panel) {
+
+            panel.insertAdjacentHTML(
+                "beforeend",
+                `
+                <p class="error-message">
+
+                    Unable to load AI Suggestions.
+
+                    Make sure the backend is
+                    running on port 8000.
+
+                </p>
+                `
+            );
+        }
+    }
 }
 
 
-function openRecommendation(product) {
+/* =========================================================
+   OPEN RECOMMENDATION
+========================================================= */
+
+function openRecommendation(
+    product
+) {
 
     localStorage.setItem(
         "selectedProduct",
         product
     );
 
+
     window.location.href =
         "replenishment.html";
-
 }
 
+
+/* =========================================================
+   LOGOUT
+========================================================= */
 
 function goHome() {
 
     window.location.href =
         "index.html";
-
 }
 
 
-/* =========================
-   IBM BOB CHAT
-========================= */
+/* =========================================================
+   IBM BOB
+========================================================= */
 
-function handleChatKey(event) {
+function handleChatKey(
+    event
+) {
 
-    if (event.key === "Enter") {
+    if (
+        event.key === "Enter"
+    ) {
 
         sendMessage();
-
     }
-
 }
 
 
-function askQuestion(question) {
+function askQuestion(
+    question
+) {
 
-    document.getElementById("chatInput").value =
+    const input =
+        document.getElementById(
+            "chatInput"
+        );
+
+
+    if (!input) return;
+
+
+    input.value =
         question;
 
-    sendMessage();
 
+    sendMessage();
 }
 
 
 function sendMessage() {
 
     const input =
-        document.getElementById("chatInput");
+        document.getElementById(
+            "chatInput"
+        );
+
+
+    const chat =
+        document.getElementById(
+            "chatMessages"
+        );
+
+
+    if (
+        !input ||
+        !chat
+    ) {
+
+        return;
+    }
+
 
     const message =
         input.value.trim();
 
+
     if (!message) return;
 
 
-    const chat =
-        document.getElementById("chatMessages");
+    /* USER */
+
+    const userMessage =
+        document.createElement(
+            "div"
+        );
 
 
-    /* USER MESSAGE */
+    userMessage.className =
+        "user-chat-message";
 
-    chat.innerHTML += `
 
-        <div class="user-chat-message">
+    userMessage.textContent =
+        message;
 
-            ${message}
 
-        </div>
-
-    `;
+    chat.appendChild(
+        userMessage
+    );
 
 
     input.value = "";
 
 
-    /* TEMPORARY MOCK BOB RESPONSE */
+    /* BOT */
 
-    setTimeout(function() {
+    setTimeout(
+        function () {
 
-        let response =
-            "Based on the current inventory data, I recommend reviewing the high-risk products first.";
-
-
-        const lower =
-            message.toLowerCase();
+            const response =
+                "Based on the Granite demand forecast, review the highest-risk products first and replenish products where predicted demand exceeds available stock.";
 
 
-        if (
-            lower.includes("reorder") ||
-            lower.includes("restock")
-        ) {
-
-            response =
-                "There are currently 3 products that require attention: Laptop, Keyboard and Mouse. Laptop is the highest priority with a predicted stockout in 3 days.";
-
-        }
+            const botMessage =
+                document.createElement(
+                    "div"
+                );
 
 
-        else if (
-            lower.includes("laptop") &&
-            lower.includes("why")
-        ) {
-
-            response =
-                "Laptop is at high stockout risk because current inventory is expected to last only 3 days, while the recommended supplier requires 5 days to deliver.";
-
-        }
+            botMessage.className =
+                "message bot-message";
 
 
-        chat.innerHTML += `
-
-            <div class="message bot-message">
+            botMessage.innerHTML = `
 
                 <div class="message-avatar">
                     🤖
@@ -261,118 +972,192 @@ function sendMessage() {
 
                 </div>
 
-            </div>
-
-        `;
+            `;
 
 
-        chat.scrollTop =
-            chat.scrollHeight;
+            chat.appendChild(
+                botMessage
+            );
 
 
-    }, 500);
+            chat.scrollTop =
+                chat.scrollHeight;
 
+        },
+        500
+    );
 }
 
-document.addEventListener("DOMContentLoaded", loadDashboardData);
-const BACKEND_URL = "http://127.0.0.1:8000";
 
 /* =========================================================
-   GENERATE FORECAST
+   MANUAL GRANITE FORECAST
 ========================================================= */
 
 async function generateForecast() {
 
-    const itemId = document
-        .getElementById("forecastItemId")
-        .value
-        .trim();
+    const itemInput =
+        document.getElementById(
+            "forecastItemId"
+        );
 
-    const horizon = Number(
-        document
-            .getElementById("forecastHorizon")
-            .value
-    );
 
-    if (!itemId) {
-        alert("Please enter an Item ID.");
+    const horizonInput =
+        document.getElementById(
+            "forecastHorizon"
+        );
+
+
+    const loading =
+        document.getElementById(
+            "forecastLoading"
+        );
+
+
+    const result =
+        document.getElementById(
+            "forecastResult"
+        );
+
+
+    const errorBox =
+        document.getElementById(
+            "forecastError"
+        );
+
+
+    if (
+        !itemInput ||
+        !horizonInput ||
+        !loading ||
+        !result ||
+        !errorBox
+    ) {
+
+        console.error(
+            "Forecast elements missing."
+        );
+
         return;
     }
 
-    const loading =
-        document.getElementById("forecastLoading");
 
-    const result =
-        document.getElementById("forecastResult");
+    const itemId =
+        itemInput.value.trim();
 
-    const errorBox =
-        document.getElementById("forecastError");
 
-    loading.style.display = "block";
-    result.style.display = "none";
-    errorBox.style.display = "none";
+    const horizon =
+        Number(
+            horizonInput.value
+        );
+
+
+    if (!itemId) {
+
+        errorBox.textContent =
+            "Please enter an Item ID.";
+
+        errorBox.style.display =
+            "block";
+
+        return;
+    }
+
+
+    loading.style.display =
+        "block";
+
+
+    result.style.display =
+        "none";
+
+
+    errorBox.style.display =
+        "none";
+
 
     try {
 
-        console.log(
-            "Requesting forecast for:",
-            itemId
-        );
-
-        const response = await fetch(
-            `${BACKEND_URL}/forecast/${encodeURIComponent(itemId)}?horizon=${horizon}`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
+        const response =
+            await fetch(
+                `${BACKEND_URL}/forecast/${encodeURIComponent(
+                    itemId
+                )}?horizon=${horizon}`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
                 }
-            }
-        );
+            );
 
-        const data = await response.json();
 
-        console.log(
-            "Forecast response:",
-            data
-        );
+        const data =
+            await response.json();
+
 
         if (!response.ok) {
+
             throw new Error(
                 data.detail ||
                 "Forecast request failed."
             );
         }
 
-        /* =============================================
-           SUMMARY
-        ============================================= */
+
+        const forecast =
+            Array.isArray(
+                data.forecast
+            )
+                ? data.forecast
+                : [];
+
+
+        if (
+            forecast.length === 0
+        ) {
+
+            throw new Error(
+                "No forecast data returned."
+            );
+        }
+
+
+        /* SUMMARY */
 
         document.getElementById(
             "forecastProduct"
-        ).textContent = data.item_id;
+        ).textContent =
+            data.item_id ||
+            itemId;
+
 
         document.getElementById(
             "forecastModel"
-        ).textContent = data.model;
+        ).textContent =
+            data.model ||
+            "Granite Time Series (IBM TTM)";
+
 
         document.getElementById(
             "forecastDays"
-        ).textContent = data.horizon;
+        ).textContent =
+            data.horizon ||
+            forecast.length;
 
 
-        /* =============================================
-           FORECAST DATA
-        ============================================= */
-
-        const forecast =
-            data.forecast || [];
+        /* TOTAL */
 
         const totalDemand =
             forecast.reduce(
-                (total, point) =>
+                (
+                    total,
+                    point
+                ) =>
                     total +
                     Number(
-                        point.predicted_demand || 0
+                        point.predicted_demand ||
+                        0
                     ),
                 0
             );
@@ -381,82 +1166,105 @@ async function generateForecast() {
         document.getElementById(
             "forecastTotal"
         ).textContent =
-            totalDemand.toFixed(2) +
-            " units";
+            `${totalDemand.toFixed(
+                2
+            )} units`;
 
 
-        /* =============================================
-           TABLE
-        ============================================= */
+        /* TABLE */
 
         const tableBody =
             document.getElementById(
                 "forecastTableBody"
             );
 
-        tableBody.innerHTML = "";
+
+        tableBody.innerHTML =
+            "";
 
 
-        if (forecast.length === 0) {
+        forecast.forEach(
+            function (
+                point
+            ) {
 
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="2">
-                        No forecast data available.
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                row.innerHTML = `
+
+                    <td>
+                        ${point.date}
                     </td>
-                </tr>
-            `;
 
-        } else {
+                    <td>
+                        ${Number(
+                            point.predicted_demand ||
+                            0
+                        ).toFixed(
+                            2
+                        )}
+                        units
+                    </td>
 
-            forecast.forEach(
-                function(point) {
-
-                    const row =
-                        document.createElement("tr");
-
-                    row.innerHTML = `
-                        <td>
-                            ${point.date}
-                        </td>
-
-                        <td>
-                            ${Number(
-                                point.predicted_demand || 0
-                            ).toFixed(2)}
-                            units
-                        </td>
-                    `;
-
-                    tableBody.appendChild(row);
-                }
-            );
-        }
+                `;
 
 
-        /* =============================================
-           SHOW RESULT
-        ============================================= */
+                tableBody.appendChild(
+                    row
+                );
+            }
+        );
 
-        result.style.display = "block";
+
+        result.style.display =
+            "block";
 
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "Forecast error:",
             error
         );
 
+
         errorBox.textContent =
             error.message;
+
 
         errorBox.style.display =
             "block";
 
-    } finally {
+
+    }
+
+    finally {
 
         loading.style.display =
             "none";
     }
 }
+
+
+/* =========================================================
+   START DASHBOARD
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        console.log(
+            "TwinStock AI Manager loaded."
+        );
+
+
+        loadDashboardData();
+    }
+);
