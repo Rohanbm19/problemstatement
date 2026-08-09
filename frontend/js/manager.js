@@ -1,3 +1,6 @@
+const API_BASE = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "/api";
+const API_URL = API_BASE.replace(/\/$/, "");
+
 function switchRole() {
 
     const role =
@@ -7,6 +10,121 @@ function switchRole() {
 
         window.location.href = "worker.html";
 
+    }
+
+}
+
+
+async function loadDashboardData() {
+
+    try {
+
+        const response = await fetch(`${API_URL}/inventory/`);
+
+        if (!response.ok) {
+            throw new Error("Unable to load inventory from backend.");
+        }
+
+        const inventory = await response.json();
+
+        const totalProducts = inventory.length;
+        const totalInventory = inventory.reduce((sum, item) => sum + (item.stock_level || 0), 0);
+        const highRisk = inventory.filter((item) => (item.stock_level || 0) <= (item.reorder_point || 0)).length;
+        const overstock = inventory.filter((item) => (item.stock_level || 0) > ((item.reorder_point || 0) * 3)).length;
+
+        document.getElementById("totalProducts").textContent = totalProducts.toLocaleString();
+        document.getElementById("totalInventory").textContent = totalInventory.toLocaleString();
+        document.getElementById("highRisk").textContent = highRisk.toLocaleString();
+        document.getElementById("overstock").textContent = overstock.toLocaleString();
+
+        const suggestionCards = document.querySelectorAll(".suggestion-card");
+        const itemsWithRisk = await Promise.all(
+            inventory.map(async (item) => {
+                try {
+                    const riskResponse = await fetch(`${API_URL}/inventory/${encodeURIComponent(item.item_id)}/stockout-risk`);
+                    const riskData = await riskResponse.json();
+                    return {
+                        ...item,
+                        risk: riskData.risk || "LOW",
+                        daysUntilStockout: riskData.days_until_stockout
+                    };
+                } catch (error) {
+                    return {
+                        ...item,
+                        risk: "LOW",
+                        daysUntilStockout: null
+                    };
+                }
+            })
+        );
+
+        const highRiskItems = itemsWithRisk.filter((item) => item.risk === "HIGH").sort((a, b) => (a.stock_level || 0) - (b.stock_level || 0));
+        const mediumRiskItems = itemsWithRisk.filter((item) => item.risk === "MEDIUM").sort((a, b) => (a.stock_level || 0) - (b.stock_level || 0));
+        const overstockItems = itemsWithRisk.filter((item) => (item.stock_level || 0) > ((item.reorder_point || 0) * 3)).sort((a, b) => (b.stock_level || 0) - (a.stock_level || 0));
+
+        const suggestions = [
+            highRiskItems[0],
+            mediumRiskItems[0] || highRiskItems[1] || itemsWithRisk[0],
+            overstockItems[0] || itemsWithRisk[0]
+        ].filter(Boolean);
+
+        suggestionCards.forEach((card, index) => {
+            const item = suggestions[index];
+
+            if (!item) {
+                card.style.display = "none";
+                return;
+            }
+
+            const riskClass = item.risk === "HIGH" ? "high" : item.risk === "MEDIUM" ? "medium" : "warning";
+            const riskLabel = item.risk === "HIGH" ? "HIGH RISK" : item.risk === "MEDIUM" ? "MEDIUM RISK" : "OVERSTOCK";
+            const message = item.risk === "HIGH"
+                ? `Stockout predicted in <strong>${item.daysUntilStockout || "N/A"} days</strong> based on current demand.`
+                : item.risk === "MEDIUM"
+                    ? `Demand is increasing. Stockout predicted in <strong>${item.daysUntilStockout || "N/A"} days</strong>.`
+                    : `Current inventory may cover <strong>${Math.max(0, item.stock_level || 0)} units</strong> of expected demand.`;
+
+            card.className = `suggestion-card ${riskClass}`;
+            card.innerHTML = `
+                <div class="suggestion-top">
+                    <div class="product-info">
+                        <span class="risk-dot ${item.risk === "HIGH" ? "red-dot" : item.risk === "MEDIUM" ? "orange-dot" : "yellow-dot"}"></span>
+                        <div>
+                            <h3>${item.item_id}</h3>
+                            <span>Product ID: ${item.item_id}</span>
+                        </div>
+                    </div>
+                    <span class="risk-label ${item.risk === "HIGH" ? "high-label" : item.risk === "MEDIUM" ? "medium-label" : "warning-label"}">${riskLabel}</span>
+                </div>
+                <p class="suggestion-message">${message}</p>
+                <div class="suggestion-details">
+                    <div>
+                        <span>Current Stock</span>
+                        <strong>${(item.stock_level || 0).toLocaleString()} units</strong>
+                    </div>
+                    <div>
+                        <span>Daily Demand</span>
+                        <strong>${item.daily_demand || 0}/day</strong>
+                    </div>
+                    <div>
+                        <span>Recommended</span>
+                        <strong>${Math.max(0, (item.reorder_point || 0) - (item.stock_level || 0)).toLocaleString()} units</strong>
+                    </div>
+                </div>
+                <button class="${index === 0 ? "primary-btn" : "secondary-btn"}" data-item-id="${item.item_id}">
+                    View Recommendation →
+                </button>
+            `;
+
+            const button = card.querySelector("button");
+            if (button) {
+                button.addEventListener("click", () => openRecommendation(item.item_id));
+            }
+        });
+
+    } catch (error) {
+        console.error("Dashboard load failed:", error);
+        document.querySelector(".suggestions-panel")?.insertAdjacentHTML("beforeend", `<p class="error-message">Unable to reach the backend API. Start the backend and proxy server first.</p>`);
     }
 
 }
@@ -155,3 +273,5 @@ function sendMessage() {
     }, 500);
 
 }
+
+document.addEventListener("DOMContentLoaded", loadDashboardData);
