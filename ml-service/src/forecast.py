@@ -1,32 +1,42 @@
 """
 forecast.py
 -----------
-Main ML forecasting module for TwinStock AI.
+Main ML forecasting module for TwinStock AI — STAGE 5.
 
 Architecture
 ------------
-This module provides a clean, pluggable forecasting interface designed
-so that the IBM Granite Time Series model (Granite TTM) can be dropped
-in as the concrete implementation once it is available.
-
-Current stage: STAGE 1 – API architecture built, baseline model provided.
-
 Model hierarchy:
     ForecastModel          (abstract base)
-        └── BaselineMovingAverageModel   ← STAGE 4: development baseline only
-        └── GraniteForecastModel         ← STAGE 5: IBM Granite TTM (not yet loaded)
+        └── BaselineMovingAverageModel   ← always available, statistical only
+        └── GraniteForecastModel         ← IBM Granite TTM R2.1 (daily, zero-shot)
 
-The active model is determined at startup by ``get_active_model()``.
+Active model selection (``get_active_model()``):
+    Priority 1: Granite TTM if loaded successfully
+    Priority 2: Baseline Moving Average (development fallback)
 
-IMPORTANT:
-- The baseline model is clearly labelled and NOT presented as AI.
-- Granite predictions are NOT faked or randomly generated.
-- When Granite is unavailable the API returns an honest "not available" response.
-- This service predicts only. Business decisions (stockout / replenishment)
-  remain in the backend.
+IBM Granite TTM Details
+-----------------------
+Model:    ibm-granite/granite-timeseries-ttm-r2
+Revision: 90-30-ft-r2.1
+HF repo:  https://huggingface.co/ibm-granite/granite-timeseries-ttm-r2
+
+- context_length:    90 days (minimum required history)
+- prediction_length: 30 days (we slice to the requested horizon)
+- frequency:         daily  (freq_token = 1 in TTM R2.1 vocabulary)
+- channels:          1  (univariate — single demand series)
+- normalization:     handled internally by the model
+- zero-shot:         yes, no fine-tuning required
+
+IMPORTANT NOTES
+---------------
+- Predictions come from the real model — never faked or randomly generated.
+- The baseline is clearly labelled and never presented as Granite output.
+- The service does NOT query PostgreSQL or modify inventory.
+- Stockout / replenishment decisions remain in the backend.
 """
 
 import logging
+import os
 from abc import ABC, abstractmethod
 from datetime import date, timedelta
 from typing import Optional
@@ -38,8 +48,26 @@ logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
-# Pydantic-compatible data structures (plain dataclasses used here to avoid
-# a circular import with app.py; app.py owns the Pydantic models)
+# Environment-variable configuration with sensible defaults
+# ---------------------------------------------------------------------------
+
+GRANITE_MODEL_ID: str = os.environ.get(
+    "GRANITE_MODEL_ID", "ibm-granite/granite-timeseries-ttm-r2"
+)
+GRANITE_REVISION: str = os.environ.get(
+    "GRANITE_REVISION", "90-30-ft-r2.1"
+)
+# context_length for the chosen revision (must match the model checkpoint)
+GRANITE_CONTEXT_LENGTH: int = int(os.environ.get("GRANITE_CONTEXT_LENGTH", "90"))
+# prediction_length produced by the chosen revision
+GRANITE_PREDICTION_LENGTH: int = int(os.environ.get("GRANITE_PREDICTION_LENGTH", "30"))
+
+# Daily freq_token value for TTM R2.1 (0=sub-daily, 1=daily, 2=weekly, …)
+GRANITE_DAILY_FREQ_TOKEN: int = int(os.environ.get("GRANITE_DAILY_FREQ_TOKEN", "1"))
+
+
+# ---------------------------------------------------------------------------
+# Abstract base class
 # ---------------------------------------------------------------------------
 
 class ForecastModel(ABC):
@@ -48,7 +76,7 @@ class ForecastModel(ABC):
     @property
     @abstractmethod
     def model_name(self) -> str:
-        """Human-readable model name."""
+        """Human-readable model name shown in API responses."""
 
     @property
     @abstractmethod
@@ -67,8 +95,8 @@ class ForecastModel(ABC):
         Parameters
         ----------
         history : list[dict]
-            Sorted list of ``{"date": date, "demand": float}`` dicts
-            representing historical demand.
+            Chronologically sorted list of ``{"date": str, "demand": float}``
+            dicts representing historical demand.
         horizon : int
             Number of future days to forecast.
 
@@ -80,23 +108,22 @@ class ForecastModel(ABC):
 
 
 # ---------------------------------------------------------------------------
-# STAGE 4: Baseline Model (Moving Average)
-# This is a DEVELOPMENT BASELINE only — clearly labelled.
-# It is NOT Granite, NOT AI, NOT a production model.
+# BASELINE — Moving Average (development fallback)
+# This is NOT Granite, NOT AI-powered, NOT a production model.
 # ---------------------------------------------------------------------------
 
 class BaselineMovingAverageModel(ForecastModel):
     """
     BASELINE MODEL – Moving Average.
 
-    This is a simple statistical baseline used during development and testing.
+    Used as a development fallback when the Granite TTM model is unavailable.
     It is NOT IBM Granite, NOT AI-powered, and NOT suitable for production use.
 
-    Strategy: use the mean demand of the last `window` historical data points
-    as the predicted demand for every day in the forecast horizon.
+    Strategy: predict the rolling mean of the last ``window`` demand values
+    for every step in the forecast horizon.
     """
 
-    LABEL = "Baseline (Moving Average)"  # always shown in responses
+    LABEL = "Baseline (Moving Average)"
 
     def __init__(self, window: int = 7):
         self._window = window
@@ -110,9 +137,7 @@ class BaselineMovingAverageModel(ForecastModel):
         return True
 
     def predict(self, history: list[dict], horizon: int) -> list[dict]:
-        """
-        Predict using the rolling mean of the last `window` demand values.
-        """
+        """Predict using the rolling mean of the last ``window`` demand values."""
         demands = [float(p["demand"]) for p in history]
         window_data = demands[-self._window:] if len(demands) >= self._window else demands
         avg_demand = float(np.mean(window_data)) if window_data else 0.0
@@ -139,26 +164,42 @@ class BaselineMovingAverageModel(ForecastModel):
 
 
 # ---------------------------------------------------------------------------
-# STAGE 5: IBM Granite Time Series model (not yet loaded)
+# STAGE 5 — IBM Granite Time Series TTM R2.1
 # ---------------------------------------------------------------------------
 
 class GraniteForecastModel(ForecastModel):
     """
-    IBM Granite Time Series (Granite TTM) forecasting model.
+    IBM Granite Time Series (Granite TTM R2.1) — daily demand forecasting.
 
-    This class is the integration point for IBM Granite.
-    It will be fully implemented in STAGE 5 when the Granite TTM weights
-    and ``tsfm_public`` / ``granite-tsfm`` package are available.
+    Model: ibm-granite/granite-timeseries-ttm-r2 (revision: 90-30-ft-r2.1)
 
-    The model is NOT available until it is explicitly loaded.
-    DO NOT fake or randomly generate predictions here.
+    Uses zero-shot inference; no fine-tuning required.
+
+    Loading
+    -------
+    Call ``load()`` once during service startup.
+    The loaded model weights are cached in memory and reused for every
+    forecast request — they are NOT re-downloaded per request.
+
+    Context requirement
+    -------------------
+    The 90-30-ft-r2.1 revision requires exactly 90 days of history.
+    If fewer than 90 data points are provided, ``predict()`` raises
+    ``ValueError`` so the caller can fall back to the baseline model.
+
+    Scaling
+    -------
+    The TTM model applies internal instance normalization.
+    No external scaling is required — the model accepts raw demand values
+    and returns predictions in the same scale.
     """
 
     MODEL_NAME = "Granite Time Series (IBM TTM)"
+    MIN_HISTORY = GRANITE_CONTEXT_LENGTH  # 90 days
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._model = None
-        self._pipeline = None
+        self._load_error: str | None = None
 
     @property
     def model_name(self) -> str:
@@ -166,80 +207,194 @@ class GraniteForecastModel(ForecastModel):
 
     @property
     def is_available(self) -> bool:
-        return self._model is not None and self._pipeline is not None
+        return self._model is not None
+
+    @property
+    def load_error(self) -> str | None:
+        """Return the error message from the last failed load(), or None."""
+        return self._load_error
 
     def load(self) -> bool:
         """
-        Attempt to load the IBM Granite TTM model.
+        Load the IBM Granite TTM R2.1 model from HuggingFace.
 
-        Returns True if loading succeeded, False otherwise.
-        This method will be implemented in STAGE 5 when:
-        - ``tsfm_public`` (IBM TSFM) package is installed
-        - Granite TTM model weights are available (HuggingFace or local)
+        Returns True only if the model loaded successfully.
+        The loaded model is stored in ``self._model`` and reused across
+        all subsequent prediction calls.
 
-        STAGE 5 implementation outline:
-        -----------------------------------------------------------------------
-        from tsfm_public.models.tinytimemixer import TinyTimeMixerForPrediction
-        from tsfm_public import TimeSeriesForecastingPipeline
+        Steps:
+        1. Import TinyTimeMixerForPrediction from tsfm_public.
+        2. Load the pretrained weights from HuggingFace (or local cache).
+        3. Set the model to eval() mode.
+        4. Verify a quick dummy forward pass succeeds.
+        5. Return True on success, False on any error.
 
-        model_path = "ibm/TTM"   # or local checkpoint
-
-        self._model = TinyTimeMixerForPrediction.from_pretrained(model_path)
-        self._pipeline = TimeSeriesForecastingPipeline(
-            model=self._model,
-            timestamp_column="date",
-            target_columns=["demand"],
-            freq="D",
-        )
-        return True
-        -----------------------------------------------------------------------
+        Environment variables:
+            GRANITE_MODEL_ID   — HuggingFace repo ID
+            GRANITE_REVISION   — branch / revision tag
         """
-        logger.info(
-            "GraniteForecastModel.load() called — Granite TTM not yet "
-            "installed. Install 'ibm-granite-tsfm' and implement this method "
-            "in STAGE 5."
-        )
-        return False
+        try:
+            logger.info(
+                "Loading Granite TTM: %s @ %s …",
+                GRANITE_MODEL_ID,
+                GRANITE_REVISION,
+            )
+
+            # Lazy import so the service starts even if tsfm_public is absent
+            from tsfm_public.models.tinytimemixer import (  # type: ignore[import]
+                TinyTimeMixerForPrediction,
+            )
+            import torch
+
+            model = TinyTimeMixerForPrediction.from_pretrained(
+                GRANITE_MODEL_ID,
+                revision=GRANITE_REVISION,
+            )
+            model.eval()
+
+            # Smoke test — one forward pass with dummy data
+            dummy = torch.zeros(1, GRANITE_CONTEXT_LENGTH, 1, dtype=torch.float32)
+            freq_tok = torch.tensor([[GRANITE_DAILY_FREQ_TOKEN]], dtype=torch.long)
+            with torch.no_grad():
+                out = model(past_values=dummy, freq_token=freq_tok)
+            if not hasattr(out, "prediction_outputs"):
+                raise RuntimeError(
+                    "Model output missing 'prediction_outputs'. "
+                    "API may have changed — check tsfm_public version."
+                )
+
+            self._model = model
+            self._load_error = None
+            logger.info(
+                "Granite TTM loaded successfully. "
+                "context_length=%d prediction_length=%d",
+                GRANITE_CONTEXT_LENGTH,
+                GRANITE_PREDICTION_LENGTH,
+            )
+            return True
+
+        except ImportError as exc:
+            msg = (
+                f"tsfm_public is not installed or not importable: {exc}. "
+                "See README for installation instructions."
+            )
+            logger.warning(msg)
+            self._load_error = msg
+            return False
+
+        except Exception as exc:
+            msg = f"Failed to load Granite TTM: {exc}"
+            logger.warning(msg)
+            self._load_error = msg
+            return False
 
     def predict(self, history: list[dict], horizon: int) -> list[dict]:
         """
-        Generate demand forecast using IBM Granite TTM.
+        Run Granite TTM inference on the provided history.
 
-        This will be implemented in STAGE 5. Until then, callers should
-        check ``is_available`` before calling this method.
+        Parameters
+        ----------
+        history : list[dict]
+            Sorted list of ``{"date": str, "demand": float}`` dicts.
+            Must contain at least ``MIN_HISTORY`` (90) data points.
+        horizon : int
+            Number of future days to forecast. Must be <= 30 (model's
+            prediction_length); larger horizons fall back to the baseline.
+
+        Returns
+        -------
+        list[dict]
+            List of ``{"date": str, "predicted_demand": float}`` dicts.
+
+        Raises
+        ------
+        RuntimeError
+            If the model is not loaded.
+        ValueError
+            If history is too short (< MIN_HISTORY) or horizon > prediction_length.
         """
         if not self.is_available:
             raise RuntimeError(
-                "Granite TTM model is not loaded. "
-                "Call load() first or check is_available."
+                "Granite TTM model is not loaded. Call load() first."
             )
 
-        # STAGE 5 implementation will call self._pipeline here.
-        # Placeholder — this branch is unreachable while model is not loaded.
-        raise NotImplementedError("Granite TTM predict() not yet implemented.")
+        if len(history) < self.MIN_HISTORY:
+            raise ValueError(
+                f"Granite TTM requires at least {self.MIN_HISTORY} days of history "
+                f"(provided: {len(history)}). Use the baseline fallback for shorter series."
+            )
+
+        if horizon > GRANITE_PREDICTION_LENGTH:
+            raise ValueError(
+                f"Granite TTM revision '{GRANITE_REVISION}' supports a maximum horizon of "
+                f"{GRANITE_PREDICTION_LENGTH} days (requested: {horizon})."
+            )
+
+        import torch  # already loaded at this point
+
+        # Build the demand array from the most recent MIN_HISTORY points
+        demands = np.array(
+            [float(p["demand"]) for p in history[-self.MIN_HISTORY:]], dtype=np.float32
+        )
+
+        # Input tensor: [batch=1, context_length, channels=1]
+        input_tensor = torch.tensor(demands, dtype=torch.float32).reshape(
+            1, self.MIN_HISTORY, 1
+        )
+        freq_token = torch.tensor(
+            [[GRANITE_DAILY_FREQ_TOKEN]], dtype=torch.long
+        )
+
+        with torch.no_grad():
+            output = self._model(past_values=input_tensor, freq_token=freq_token)
+
+        raw_predictions: np.ndarray = (
+            output.prediction_outputs[0, :horizon, 0].cpu().numpy()
+        )
+
+        # Safety: clamp negatives to zero, replace any NaN/inf
+        raw_predictions = np.where(
+            np.isfinite(raw_predictions), raw_predictions, 0.0
+        )
+        raw_predictions = np.clip(raw_predictions, 0.0, None)
+
+        # Generate forecast dates
+        last_date = pd.to_datetime(history[-1]["date"])
+        forecasts = []
+        for i, pred_val in enumerate(raw_predictions, start=1):
+            forecast_date = (last_date + timedelta(days=i)).date()
+            forecasts.append(
+                {
+                    "date": str(forecast_date),
+                    "predicted_demand": round(float(pred_val), 4),
+                }
+            )
+
+        logger.info(
+            "[Granite TTM] item forecast complete. horizon=%d first_pred=%.4f",
+            horizon,
+            float(raw_predictions[0]) if len(raw_predictions) > 0 else 0.0,
+        )
+        return forecasts
 
 
 # ---------------------------------------------------------------------------
-# Model registry — single active model instance
+# Model registry — loaded once at module import time
 # ---------------------------------------------------------------------------
 
-# The Granite model instance (not yet loaded)
 _granite_model = GraniteForecastModel()
+_granite_available = _granite_model.load()  # loads at startup; result cached
 
-# Attempt to load Granite at startup; it will silently remain unavailable.
-_granite_available = _granite_model.load()
-
-# Baseline model for development
 _baseline_model = BaselineMovingAverageModel(window=7)
 
 
 def get_active_model() -> ForecastModel:
     """
-    Return the best available model.
+    Return the best available forecasting model.
 
     Priority:
-        1. Granite TTM (if loaded)
-        2. Baseline Moving Average (development only)
+        1. Granite TTM (when loaded)
+        2. Baseline Moving Average (always available as fallback)
     """
     if _granite_model.is_available:
         return _granite_model
@@ -248,28 +403,27 @@ def get_active_model() -> ForecastModel:
 
 def get_model_status() -> dict:
     """
-    Return the current model availability status.
+    Return the current model availability status for the /model/status endpoint.
 
     Returns
     -------
     dict
-        Status dict suitable for the /model/status API response.
     """
     if _granite_model.is_available:
         return {
             "model": GraniteForecastModel.MODEL_NAME,
             "available": True,
+            "revision": GRANITE_REVISION,
+            "context_length": GRANITE_CONTEXT_LENGTH,
+            "prediction_length": GRANITE_PREDICTION_LENGTH,
+            "fallback_model": BaselineMovingAverageModel.LABEL,
+            "fallback_available": True,
         }
 
     return {
         "model": GraniteForecastModel.MODEL_NAME,
         "available": False,
-        "message": (
-            "Granite TTM model is not loaded yet. "
-            "Install 'ibm-granite-tsfm' and implement GraniteForecastModel.load() "
-            "in src/forecast.py (STAGE 5). "
-            "A baseline moving-average model is used as a development fallback."
-        ),
+        "message": _granite_model.load_error or "Granite TTM is not loaded.",
         "fallback_model": BaselineMovingAverageModel.LABEL,
         "fallback_available": True,
     }
@@ -285,18 +439,9 @@ def validate_forecast_input(
     horizon: int,
 ) -> None:
     """
-    Validate the inputs for a forecast request.
+    Validate inputs for a forecast request.
 
-    Parameters
-    ----------
-    item_id : str
-    history : list[dict]  – each dict has 'date' and 'demand'
-    horizon : int
-
-    Raises
-    ------
-    ValueError
-        With a descriptive message if any validation fails.
+    Raises ValueError with a descriptive message on any failure.
     """
     if not item_id or not item_id.strip():
         raise ValueError("item_id cannot be empty.")
@@ -326,33 +471,25 @@ def forecast_demand(
     horizon: int = 7,
 ) -> dict:
     """
-    Generate a demand forecast for a single item.
+    Generate a demand forecast for a single warehouse item.
 
-    This is the primary ML function called by the API endpoints.
-
-    The function:
-    1. Validates inputs.
-    2. Sorts historical data chronologically.
-    3. Selects the best available model.
-    4. Calls model.predict() to generate the forecast.
-    5. Returns a structured response.
-
-    If Granite is not available, the response clearly states this and
-    falls back to the baseline model (labelled as BASELINE only).
+    Model selection logic:
+    1. If Granite TTM is loaded AND history >= 90 days AND horizon <= 30:
+       → use Granite (real AI predictions)
+    2. Otherwise → use Baseline Moving Average (clearly labelled)
 
     Parameters
     ----------
     item_id : str
-        Warehouse item identifier.
     historical_data : list[dict]
-        List of ``{"date": str|date, "demand": float}`` dicts.
+        ``[{"date": str, "demand": float}, …]``
     horizon : int
-        Number of future days to forecast (default: 7).
+        Days to forecast (default: 7).
 
     Returns
     -------
     dict
-        Structured forecast response.
+        ``{"item_id", "model", "horizon", "forecast": [{"date", "predicted_demand"}]}``
     """
     logger.info(
         "forecast_demand called — item_id='%s' horizon=%d history_len=%d",
@@ -361,20 +498,18 @@ def forecast_demand(
         len(historical_data) if historical_data else 0,
     )
 
-    # Validate
     validate_forecast_input(item_id, historical_data, horizon)
 
     # Sort history chronologically
     sorted_history = sorted(historical_data, key=lambda x: str(x["date"]))
 
-    # Select model
-    model = get_active_model()
+    # Decide which model to use
+    model = _select_model(sorted_history, horizon)
 
-    # Generate prediction
     forecast_points = model.predict(sorted_history, horizon)
 
     logger.info(
-        "Forecast generated — item_id='%s' model='%s' points=%d",
+        "Forecast complete — item_id='%s' model='%s' points=%d",
         item_id,
         model.model_name,
         len(forecast_points),
@@ -386,6 +521,40 @@ def forecast_demand(
         horizon=horizon,
         forecast_points=forecast_points,
     )
+
+
+def _select_model(sorted_history: list[dict], horizon: int) -> ForecastModel:
+    """
+    Select the best available model for the given history and horizon.
+
+    Granite TTM is used when:
+    - It is loaded and available.
+    - History has >= GRANITE_CONTEXT_LENGTH (90) data points.
+    - Requested horizon <= GRANITE_PREDICTION_LENGTH (30).
+
+    Otherwise the baseline moving-average model is used.
+    """
+    if _granite_model.is_available:
+        if len(sorted_history) < GraniteForecastModel.MIN_HISTORY:
+            logger.info(
+                "Granite available but history too short (%d < %d). "
+                "Falling back to %s.",
+                len(sorted_history),
+                GraniteForecastModel.MIN_HISTORY,
+                BaselineMovingAverageModel.LABEL,
+            )
+        elif horizon > GRANITE_PREDICTION_LENGTH:
+            logger.info(
+                "Granite available but horizon=%d exceeds model max=%d. "
+                "Falling back to %s.",
+                horizon,
+                GRANITE_PREDICTION_LENGTH,
+                BaselineMovingAverageModel.LABEL,
+            )
+        else:
+            return _granite_model
+
+    return _baseline_model
 
 
 def forecast_available() -> bool:
@@ -403,20 +572,7 @@ def create_forecast_response(
     horizon: int,
     forecast_points: list[dict],
 ) -> dict:
-    """
-    Build the standard forecast response dict.
-
-    Parameters
-    ----------
-    item_id : str
-    model_name : str
-    horizon : int
-    forecast_points : list[dict]  – list of {"date": str, "predicted_demand": float}
-
-    Returns
-    -------
-    dict
-    """
+    """Build the standard forecast response dict."""
     return {
         "item_id": item_id,
         "model": model_name,

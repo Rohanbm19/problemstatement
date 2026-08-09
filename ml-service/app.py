@@ -60,15 +60,19 @@ async def lifespan(application: FastAPI):
     logger.info("===== TwinStock AI ML Service starting on port 8001 =====")
     logger.info("Primary model : %s", status["model"])
     logger.info("Model available: %s", status["available"])
-    if not status["available"]:
+    if status["available"]:
+        logger.info(
+            "Granite revision: %s  context=%s  prediction=%s",
+            status.get("revision"),
+            status.get("context_length"),
+            status.get("prediction_length"),
+        )
+    else:
+        logger.info("Granite load message: %s", status.get("message"))
         logger.info(
             "Fallback model : %s (available=%s)",
             status.get("fallback_model"),
             status.get("fallback_available"),
-        )
-        logger.info(
-            "To enable Granite: install 'ibm-granite-tsfm' and implement "
-            "GraniteForecastModel.load() in src/forecast.py (STAGE 5)."
         )
     yield
 
@@ -78,7 +82,7 @@ app = FastAPI(
     description=(
         "Demand forecasting microservice for the TwinStock AI warehouse system. "
         "Accepts historical demand data from the backend and returns demand forecasts. "
-        "Powered by IBM Granite Time Series (Granite TTM) — integration in STAGE 5."
+        "Powered by IBM Granite Time Series TTM R2.1 (ibm-granite/granite-timeseries-ttm-r2)."
     ),
     version="1.0.0",
     docs_url="/docs",
@@ -177,6 +181,9 @@ class ModelStatusResponse(BaseModel):
     model: str
     available: bool
     message: Optional[str] = None
+    revision: Optional[str] = None
+    context_length: Optional[int] = None
+    prediction_length: Optional[int] = None
     fallback_model: Optional[str] = None
     fallback_available: Optional[bool] = None
 

@@ -1,13 +1,24 @@
 fastapi==0.114.2
 uvicorn==0.30.6
-pandas==2.2.3
-numpy>=2.1,<3
+pandas>=2.1,<4
+numpy>=1.26,<3
 pydantic==2.9.2
-httpx==0.27.2
-pytest==8.3.3
+httpx>=0.27
+pytest>=8.3
 
-# Add below when implementing STAGE 5 (IBM Granite TTM):
-# ibm-granite-tsfm
-# torch
-# transformers
-# huggingface_hub
+# IBM Granite Time Series (TTM) dependencies
+# Install the tsfm_public source from the granite-tsfm GitHub repo.
+# The granite-tsfm PyPI package (0.0.0) is a placeholder — install source directly:
+#
+#   python -m pip install torch transformers datasets accelerate scikit-learn scipy
+#   (then copy tsfm_public from the granite-tsfm source — see README for instructions)
+#
+# Python 3.11/3.12/3.13 users can also try:
+#   pip install "git+https://github.com/ibm-granite/granite-tsfm.git"
+#
+torch>=2.0
+transformers>=4.40
+datasets>=2.0
+accelerate>=0.26
+scikit-learn>=1.3
+scipy>=1.11
