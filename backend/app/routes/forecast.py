@@ -1,5 +1,12 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+from datetime import timedelta
 import httpx
+
+from app.database import get_db
+from app.models.inventory import InventoryItem
+from app.models.transaction import Transaction
+
 
 router = APIRouter(
     prefix="/forecast",
@@ -9,29 +16,24 @@ router = APIRouter(
 ML_SERVICE_URL = "http://127.0.0.1:8001"
 
 
-# ============================================================
-# FORECAST BY ITEM ID
-# ============================================================
-
 @router.post("/{item_id}")
 async def generate_forecast(
     item_id: str,
-    horizon: int = 7
+    horizon: int = 7,
+    db: Session = Depends(get_db)
 ):
 
-    # --------------------------------------------------------
-    # Validate item ID
-    # --------------------------------------------------------
+    # ========================================================
+    # VALIDATION
+    # ========================================================
 
-    if not item_id.strip():
+    item_id = item_id.strip()
+
+    if not item_id:
         raise HTTPException(
             status_code=400,
             detail="Item ID is required"
         )
-
-    # --------------------------------------------------------
-    # Validate forecast horizon
-    # --------------------------------------------------------
 
     if horizon <= 0:
         raise HTTPException(
@@ -45,46 +47,175 @@ async def generate_forecast(
             detail="Forecast horizon cannot be greater than 30 days"
         )
 
-    # --------------------------------------------------------
-    # TEMPORARY HISTORICAL DEMAND
-    #
-    # Later this should come from your database.
-    # --------------------------------------------------------
+    # ========================================================
+    # CHECK PRODUCT
+    # ========================================================
 
-    history = [
-        {
-            "date": "2026-08-01",
-            "demand": 12
-        },
-        {
-            "date": "2026-08-02",
-            "demand": 15
-        },
-        {
-            "date": "2026-08-03",
-            "demand": 11
-        },
-        {
-            "date": "2026-08-04",
-            "demand": 18
-        },
-        {
-            "date": "2026-08-05",
-            "demand": 14
-        },
-        {
-            "date": "2026-08-06",
-            "demand": 16
-        },
-        {
-            "date": "2026-08-07",
-            "demand": 13
-        }
-    ]
+    item = (
+        db.query(InventoryItem)
+        .filter(
+            InventoryItem.item_id == item_id
+        )
+        .first()
+    )
 
-    # --------------------------------------------------------
-    # Call ML SERVICE
-    # --------------------------------------------------------
+    if not item:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Product {item_id} not found"
+        )
+
+    # ========================================================
+    # GET TRANSACTIONS
+    # ========================================================
+
+    transactions = (
+        db.query(Transaction)
+        .filter(
+            Transaction.item_id == item_id
+        )
+        .order_by(
+            Transaction.created_at.asc()
+        )
+        .all()
+    )
+
+    if not transactions:
+
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"No transactions found for {item_id}. "
+                "Create dispatch transactions first."
+            )
+        )
+
+    # ========================================================
+    # BUILD DAILY DEMAND
+    # ========================================================
+
+    daily_demand = {}
+
+    for transaction in transactions:
+
+        transaction_type = (
+            transaction.transaction_type
+            .lower()
+            .strip()
+        )
+
+        # ---------------------------------------------
+        # Only dispatch represents customer demand
+        # ---------------------------------------------
+
+        if transaction_type != "dispatch":
+            continue
+
+        # ---------------------------------------------
+        # Transaction must have a date
+        # ---------------------------------------------
+
+        if transaction.created_at is None:
+            print(
+                f"WARNING: Transaction {transaction.id} "
+                f"has no created_at value"
+            )
+            continue
+
+        transaction_date = (
+            transaction.created_at.date()
+        )
+
+        # ---------------------------------------------
+        # Add demand for that day
+        # ---------------------------------------------
+
+        if transaction_date not in daily_demand:
+
+            daily_demand[transaction_date] = 0
+
+        daily_demand[transaction_date] += (
+            transaction.quantity
+        )
+
+    # ========================================================
+    # CHECK DEMAND
+    # ========================================================
+
+    if not daily_demand:
+
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Transactions were found for {item_id}, "
+                "but no valid dispatch demand dates "
+                "were available. "
+                "Check the created_at column in the "
+                "transactions table."
+            )
+        )
+
+    # ========================================================
+    # CREATE CONTINUOUS HISTORY
+    # ========================================================
+
+    first_date = min(
+        daily_demand.keys()
+    )
+
+    last_date = max(
+        daily_demand.keys()
+    )
+
+    history = []
+
+    current_date = first_date
+
+    while current_date <= last_date:
+
+        history.append({
+            "date": current_date.isoformat(),
+            "demand": daily_demand.get(
+                current_date,
+                0
+            )
+        })
+
+        current_date += timedelta(days=1)
+
+    # ========================================================
+    # NEED AT LEAST 2 DAYS
+    # ========================================================
+
+    if len(history) < 2:
+
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Only one day of demand exists for "
+                f"{item_id}. "
+                "Create dispatch transactions on "
+                "multiple dates before forecasting."
+            )
+        )
+
+    # ========================================================
+    # DEBUG
+    # ========================================================
+
+    print("\n====================================")
+    print("FORECAST REQUEST")
+    print("====================================")
+    print("Item:", item_id)
+    print("Current Stock:", item.stock_level)
+    print("Transactions:", len(transactions))
+    print("Demand History:", history)
+    print("Horizon:", horizon)
+    print("====================================\n")
+
+    # ========================================================
+    # CALL ML SERVICE
+    # ========================================================
 
     try:
 
@@ -93,7 +224,9 @@ async def generate_forecast(
         ) as client:
 
             response = await client.post(
+
                 f"{ML_SERVICE_URL}/forecast",
+
                 json={
                     "item_id": item_id,
                     "horizon": horizon,
@@ -107,7 +240,7 @@ async def generate_forecast(
             status_code=503,
             detail=(
                 "ML service is not running. "
-                "Start the ML service on port 8001."
+                "Start it on http://127.0.0.1:8001"
             )
         )
 
@@ -125,9 +258,9 @@ async def generate_forecast(
             detail=f"Could not connect to ML service: {str(e)}"
         )
 
-    # --------------------------------------------------------
-    # HANDLE ML SERVICE ERROR
-    # --------------------------------------------------------
+    # ========================================================
+    # ML ERROR
+    # ========================================================
 
     if response.status_code != 200:
 
@@ -145,30 +278,38 @@ async def generate_forecast(
             )
         )
 
-    # --------------------------------------------------------
-    # GET ML RESULT
-    # --------------------------------------------------------
+    # ========================================================
+    # ML RESULT
+    # ========================================================
 
     result = response.json()
 
-    # --------------------------------------------------------
-    # RETURN FORECAST TO FRONTEND
-    # --------------------------------------------------------
+    # ========================================================
+    # RETURN
+    # ========================================================
 
     return {
+
         "success": True,
-        "item_id": result.get(
-            "item_id",
-            item_id
-        ),
+
+        "item_id": item_id,
+
+        "current_stock": item.stock_level,
+
+        "history_days": len(history),
+
+        "history": history,
+
         "model": result.get(
             "model",
             "Unknown"
         ),
+
         "horizon": result.get(
             "horizon",
             horizon
         ),
+
         "forecast": result.get(
             "forecast",
             []
