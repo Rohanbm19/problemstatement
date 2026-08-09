@@ -547,3 +547,242 @@ function addTransactionToUI(
     list.prepend(item);
 
 }
+/* =========================================================
+   TWINSTOCK AI - MANAGER FORECASTING
+========================================================= */
+
+const BACKEND_URL = "http://127.0.0.1:8000";
+
+
+/* =========================================================
+   GENERATE FORECAST
+========================================================= */
+
+async function generateForecast() {
+
+    const itemId =
+        document
+            .getElementById("forecastItemId")
+            .value
+            .trim();
+
+    const horizon =
+        Number(
+            document
+                .getElementById("forecastHorizon")
+                .value
+        );
+
+
+    /* -----------------------------------------------------
+       VALIDATION
+    ----------------------------------------------------- */
+
+    if (!itemId) {
+
+        alert("Please enter an Item ID.");
+
+        return;
+    }
+
+
+    /* -----------------------------------------------------
+       UI ELEMENTS
+    ----------------------------------------------------- */
+
+    const loading =
+        document.getElementById(
+            "forecastLoading"
+        );
+
+    const result =
+        document.getElementById(
+            "forecastResult"
+        );
+
+    const error =
+        document.getElementById(
+            "forecastError"
+        );
+
+
+    loading.style.display = "block";
+
+    result.style.display = "none";
+
+    error.style.display = "none";
+
+
+    try {
+
+        /* -------------------------------------------------
+           CALL BACKEND
+        ------------------------------------------------- */
+
+        const response = await fetch(
+
+            `${BACKEND_URL}/forecast/${itemId}?horizon=${horizon}`,
+
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+
+        );
+
+
+        const data =
+            await response.json();
+
+
+        /* -------------------------------------------------
+           BACKEND ERROR
+        ------------------------------------------------- */
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Forecast generation failed."
+            );
+
+        }
+
+
+        console.log(
+            "Forecast response:",
+            data
+        );
+
+
+        /* -------------------------------------------------
+           DISPLAY SUMMARY
+        ------------------------------------------------- */
+
+        document.getElementById(
+            "forecastProduct"
+        ).textContent =
+            data.item_id;
+
+
+        document.getElementById(
+            "forecastModel"
+        ).textContent =
+            data.model;
+
+
+        document.getElementById(
+            "forecastDays"
+        ).textContent =
+            data.horizon;
+
+
+        /* -------------------------------------------------
+           CALCULATE TOTAL DEMAND
+        ------------------------------------------------- */
+
+        const forecast =
+            data.forecast || [];
+
+
+        const totalDemand =
+            forecast.reduce(
+                function(total, point) {
+
+                    return total +
+                        Number(
+                            point.predicted_demand
+                        );
+
+                },
+                0
+            );
+
+
+        document.getElementById(
+            "forecastTotal"
+        ).textContent =
+            totalDemand.toFixed(2) +
+            " units";
+
+
+        /* -------------------------------------------------
+           BUILD FORECAST TABLE
+        ------------------------------------------------- */
+
+        const tableBody =
+            document.getElementById(
+                "forecastTableBody"
+            );
+
+
+        tableBody.innerHTML = "";
+
+
+        forecast.forEach(
+            function(point) {
+
+                const row =
+                    document.createElement("tr");
+
+
+                row.innerHTML = `
+
+                    <td>
+                        ${point.date}
+                    </td>
+
+                    <td>
+                        ${Number(
+                            point.predicted_demand
+                        ).toFixed(2)}
+                        units
+                    </td>
+
+                `;
+
+
+                tableBody.appendChild(row);
+
+            }
+        );
+
+
+        /* -------------------------------------------------
+           SHOW RESULT
+        ------------------------------------------------- */
+
+        result.style.display = "block";
+
+
+    }
+
+    catch (err) {
+
+        console.error(
+            "Forecast error:",
+            err
+        );
+
+
+        error.textContent =
+            "Unable to generate forecast: " +
+            err.message;
+
+
+        error.style.display =
+            "block";
+
+    }
+
+    finally {
+
+        loading.style.display =
+            "none";
+
+    }
+
+}

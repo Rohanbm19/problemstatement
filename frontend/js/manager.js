@@ -275,3 +275,188 @@ function sendMessage() {
 }
 
 document.addEventListener("DOMContentLoaded", loadDashboardData);
+const BACKEND_URL = "http://127.0.0.1:8000";
+
+/* =========================================================
+   GENERATE FORECAST
+========================================================= */
+
+async function generateForecast() {
+
+    const itemId = document
+        .getElementById("forecastItemId")
+        .value
+        .trim();
+
+    const horizon = Number(
+        document
+            .getElementById("forecastHorizon")
+            .value
+    );
+
+    if (!itemId) {
+        alert("Please enter an Item ID.");
+        return;
+    }
+
+    const loading =
+        document.getElementById("forecastLoading");
+
+    const result =
+        document.getElementById("forecastResult");
+
+    const errorBox =
+        document.getElementById("forecastError");
+
+    loading.style.display = "block";
+    result.style.display = "none";
+    errorBox.style.display = "none";
+
+    try {
+
+        console.log(
+            "Requesting forecast for:",
+            itemId
+        );
+
+        const response = await fetch(
+            `${BACKEND_URL}/forecast/${encodeURIComponent(itemId)}?horizon=${horizon}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        console.log(
+            "Forecast response:",
+            data
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                data.detail ||
+                "Forecast request failed."
+            );
+        }
+
+        /* =============================================
+           SUMMARY
+        ============================================= */
+
+        document.getElementById(
+            "forecastProduct"
+        ).textContent = data.item_id;
+
+        document.getElementById(
+            "forecastModel"
+        ).textContent = data.model;
+
+        document.getElementById(
+            "forecastDays"
+        ).textContent = data.horizon;
+
+
+        /* =============================================
+           FORECAST DATA
+        ============================================= */
+
+        const forecast =
+            data.forecast || [];
+
+        const totalDemand =
+            forecast.reduce(
+                (total, point) =>
+                    total +
+                    Number(
+                        point.predicted_demand || 0
+                    ),
+                0
+            );
+
+
+        document.getElementById(
+            "forecastTotal"
+        ).textContent =
+            totalDemand.toFixed(2) +
+            " units";
+
+
+        /* =============================================
+           TABLE
+        ============================================= */
+
+        const tableBody =
+            document.getElementById(
+                "forecastTableBody"
+            );
+
+        tableBody.innerHTML = "";
+
+
+        if (forecast.length === 0) {
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="2">
+                        No forecast data available.
+                    </td>
+                </tr>
+            `;
+
+        } else {
+
+            forecast.forEach(
+                function(point) {
+
+                    const row =
+                        document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>
+                            ${point.date}
+                        </td>
+
+                        <td>
+                            ${Number(
+                                point.predicted_demand || 0
+                            ).toFixed(2)}
+                            units
+                        </td>
+                    `;
+
+                    tableBody.appendChild(row);
+                }
+            );
+        }
+
+
+        /* =============================================
+           SHOW RESULT
+        ============================================= */
+
+        result.style.display = "block";
+
+
+    } catch (error) {
+
+        console.error(
+            "Forecast error:",
+            error
+        );
+
+        errorBox.textContent =
+            error.message;
+
+        errorBox.style.display =
+            "block";
+
+    } finally {
+
+        loading.style.display =
+            "none";
+    }
+}

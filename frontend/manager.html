@@ -448,6 +448,151 @@
                 </div>
 
             </div>
+            <!-- =========================================================
+     DEMAND FORECASTING
+========================================================= -->
+<section class="panel forecasting-panel">
+
+    <div class="panel-header">
+
+        <div>
+            <h2>🔮 Demand Forecasting</h2>
+
+            <p>
+                Predict future demand using TwinStock AI.
+            </p>
+        </div>
+
+        <span class="count-badge">
+            AI Forecast
+        </span>
+
+    </div>
+
+
+    <div class="forecast-form">
+
+        <div class="form-group">
+
+            <label for="forecastItemId">
+                Product / Item ID
+            </label>
+
+            <input
+                type="text"
+                id="forecastItemId"
+                placeholder="Example: ITM10025"
+            >
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="forecastHorizon">
+                Forecast Horizon
+            </label>
+
+            <select id="forecastHorizon">
+
+                <option value="7">
+                    Next 7 Days
+                </option>
+
+                <option value="14">
+                    Next 14 Days
+                </option>
+
+                <option value="30">
+                    Next 30 Days
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="primary-btn"
+            onclick="generateForecast()">
+
+            🔮 Generate Forecast
+
+        </button>
+
+    </div>
+
+
+    <div
+        id="forecastLoading"
+        style="display:none;">
+
+        ⏳ Generating forecast...
+
+    </div>
+
+
+    <div
+        id="forecastError"
+        class="error-message"
+        style="display:none;">
+    </div>
+
+
+    <div
+        id="forecastResult"
+        class="forecast-result"
+        style="display:none;">
+
+        <div class="forecast-summary">
+
+            <div class="forecast-stat">
+                <span>Product</span>
+                <strong id="forecastProduct">-</strong>
+            </div>
+
+            <div class="forecast-stat">
+                <span>Model</span>
+                <strong id="forecastModel">-</strong>
+            </div>
+
+            <div class="forecast-stat">
+                <span>Forecast Days</span>
+                <strong id="forecastDays">-</strong>
+            </div>
+
+            <div class="forecast-stat">
+                <span>Total Expected Demand</span>
+                <strong id="forecastTotal">-</strong>
+            </div>
+
+        </div>
+
+
+        <div class="forecast-table-container">
+
+            <table class="forecast-table">
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Predicted Demand</th>
+                    </tr>
+                </thead>
+
+                <tbody id="forecastTableBody">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+
+</section>
 
         </section>
 

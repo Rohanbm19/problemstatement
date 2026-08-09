@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from app.database import engine, Base
-
+from app.routes.forecast import router as forecast_router
 # Models
 from app.models.inventory import InventoryItem
 from app.models.transaction import Transaction
@@ -11,7 +11,7 @@ from app.models.transaction import Transaction
 # Routes
 from app.routes.inventory import router as inventory_router
 from app.routes.transactions import router as transaction_router
-
+from app.routes.forecast import router as forecast_router
 
 # ============================================================
 # FASTAPI APPLICATION
@@ -22,7 +22,20 @@ app = FastAPI(
     description="AI-powered warehouse inventory and replenishment backend",
     version="1.0.0"
 )
+app.add_middleware(
+    CORSMiddleware,
 
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500"
+    ],
+
+    allow_credentials=True,
+
+    allow_methods=["*"],
+
+    allow_headers=["*"]
+)
 
 # ============================================================
 # CORS
@@ -61,7 +74,9 @@ app.include_router(inventory_router)
 
 app.include_router(transaction_router)
 
-
+app.include_router(inventory_router)
+app.include_router(transaction_router)
+app.include_router(forecast_router)
 # ============================================================
 # ROOT
 # ============================================================
