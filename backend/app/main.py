@@ -1,19 +1,47 @@
 from fastapi import FastAPI
+from sqlalchemy import text
 
-from app.database import Base, engine
-from app.routes import inventory, products, sales, suppliers, transactions
+from app.database import engine, Base
+from app.models.inventory import InventoryItem
+from app.routes.inventory import router as inventory_router
 
-app = FastAPI(title="Inventory Management Backend")
 
+app = FastAPI(
+    title="TwinStock AI API",
+    description="AI-powered warehouse inventory and replenishment backend",
+    version="1.0.0"
+)
+
+
+# Create database tables if they don't already exist
 Base.metadata.create_all(bind=engine)
 
-app.include_router(products.router, prefix="/products", tags=["Products"])
-app.include_router(inventory.router, prefix="/inventory", tags=["Inventory"])
-app.include_router(transactions.router, prefix="/transactions", tags=["Transactions"])
-app.include_router(sales.router, prefix="/sales", tags=["Sales"])
-app.include_router(suppliers.router, prefix="/suppliers", tags=["Suppliers"])
+
+# Register inventory routes
+app.include_router(inventory_router)
 
 
 @app.get("/")
 def root():
-    return {"message": "Backend is running"}
+    return {
+        "message": "TwinStock AI Backend is running"
+    }
+
+
+@app.get("/health")
+def health_check():
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+
+        return {
+            "status": "healthy",
+            "database": "connected"
+        }
+
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "database": "disconnected",
+            "error": str(e)
+        }
