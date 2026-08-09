@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
 
@@ -7,6 +5,7 @@ from app.database import Base
 
 
 class Transaction(Base):
+
     __tablename__ = "transactions"
 
     id = Column(
@@ -43,5 +42,6 @@ class Transaction(Base):
 
     created_at = Column(
         DateTime,
+        nullable=False,
         server_default=func.now()
     )

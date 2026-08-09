@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.sql import func
 from app.database import get_db
 from app.models.inventory import InventoryItem
 from app.models.transaction import Transaction
-
+from app.database import Base
 
 router = APIRouter(
     prefix="/transactions",
