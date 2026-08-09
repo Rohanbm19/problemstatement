@@ -65,21 +65,22 @@ class TestModelStatus:
         assert "model" in data
         assert "available" in data
 
-    def test_granite_not_available_yet(self):
-        """Granite is not loaded — available must be False."""
-        data = client.get("/model/status").json()
-        # Granite TTM is not installed in STAGE 1
-        assert data["available"] is False
-
     def test_model_name_is_granite(self):
         data = client.get("/model/status").json()
         assert "Granite" in data["model"]
 
-    def test_message_present_when_unavailable(self):
+    def test_fallback_present(self):
         data = client.get("/model/status").json()
-        if not data["available"]:
-            assert "message" in data
-            assert data["message"]  # not empty
+        assert "fallback_model" in data
+        assert data["fallback_available"] is True
+
+    def test_message_or_revision_present(self):
+        """Either revision (when loaded) or message (when unavailable) must be present."""
+        data = client.get("/model/status").json()
+        if data["available"]:
+            assert "revision" in data
+        else:
+            assert "message" in data and data["message"]
 
 
 # ---------------------------------------------------------------------------
