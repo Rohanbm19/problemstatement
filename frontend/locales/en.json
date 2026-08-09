@@ -1,0 +1,111 @@
+{
+  "language": "Language:",
+  "role": "Role:",
+  "logout": "Logout",
+
+  "dashboard": "Worker Dashboard",
+  "dashboard_description": "Update warehouse inventory and record transactions.",
+  "system_live": "System Live",
+
+  "total_products": "Total Products",
+  "total_inventory": "Total Inventory",
+  "high_risk": "High Risk",
+  "overstock": "Overstock",
+
+  "units": "units",
+  "products": "products",
+
+  "update_inventory": "Update Inventory",
+  "record_transaction": "Record a new warehouse transaction",
+
+  "product_id": "Product ID",
+  "product_placeholder": "Example: ITM10000",
+  "product_help": "Enter the Item ID from the inventory database.",
+
+  "transaction_type": "Transaction Type",
+
+  "receive": "Receive",
+  "dispatch": "Dispatch",
+  "return": "Return",
+  "damaged": "Damaged",
+
+  "units_placeholder": "Enter units",
+
+  "location": "Location",
+
+  "shelf_a12": "Shelf A12",
+  "shelf_b04": "Shelf B04",
+  "shelf_c08": "Shelf C08",
+  "shelf_d15": "Shelf D15",
+
+  "notes": "Details / Notes",
+  "notes_placeholder": "Enter any additional details...",
+
+  "submit": "Submit Transaction",
+  "transaction_success": "Transaction recorded successfully!",
+
+  "recent_transactions": "Recent Transactions",
+  "latest_updates": "Latest inventory updates",
+  "today": "Today",
+
+  "manager_dashboard": "Manager Dashboard",
+  "manager_description": "Monitor inventory, AI predictions and replenishment recommendations.",
+
+  "ai_suggestions": "🤖 AI Suggestions",
+  "ai_recommendations": "AI-powered inventory recommendations",
+
+  "high_risk_label": "HIGH RISK",
+  "medium_risk": "MEDIUM RISK",
+  "overstock_label": "OVERSTOCK",
+
+  "stockout_predicted": "Stockout predicted based on current demand.",
+  "demand_increasing": "Demand is increasing.",
+  "inventory_covers_demand": "Current inventory may cover expected demand.",
+
+  "current_stock": "Current Stock",
+  "predicted_demand": "Predicted Demand",
+  "recommended": "Recommended",
+  "daily_demand": "Daily Demand",
+  "status": "Status",
+  "review": "Review",
+
+  "view_recommendation": "View Recommendation →",
+  "view_details": "View Details →",
+
+  "inventory_overview": "📋 Inventory Overview",
+  "latest_activity": "Latest warehouse activity",
+
+  "ai_warehouse_assistant": "AI Warehouse Assistant",
+
+  "bob_greeting": "Hello! I'm your warehouse AI assistant. I can help you understand inventory risks, predictions and replenishment recommendations.",
+
+  "reorder_question": "Which products should I reorder?",
+  "laptop_question": "Why is Laptop high risk?",
+
+  "chat_placeholder": "Ask IBM Bob about your inventory...",
+
+  "demand_forecasting": "🔮 Demand Forecasting",
+  "forecast_description": "Predict future demand using TwinStock AI.",
+  "ai_forecast": "AI Forecast",
+
+  "product_item_id": "Product / Item ID",
+  "forecast_item_placeholder": "Example: ITM10025",
+
+  "forecast_horizon": "Forecast Horizon",
+  "next_7_days": "Next 7 Days",
+  "next_14_days": "Next 14 Days",
+  "next_30_days": "Next 30 Days",
+
+  "generate_forecast": "🔮 Generate Forecast",
+  "generating_forecast": "⏳ Generating forecast...",
+
+  "product": "Product",
+  "model": "Model",
+  "forecast_days": "Forecast Days",
+  "total_expected_demand": "Total Expected Demand",
+  "date": "Date",
+  "select_role": "Select Your Role",
+    "role_subtitle": "Choose how you want to access TwinStock AI",
+    "manager": "Manager",
+    "worker": "Worker"
+}

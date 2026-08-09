@@ -1251,15 +1251,604 @@ async function generateForecast() {
     }
 }
 
+<<<<<<< HEAD
 
 /* =========================================================
    START DASHBOARD
 ========================================================= */
+=======
+const API_URL = "http://127.0.0.1:8000";
+
+
+// ============================================================
+// LANGUAGE TRANSLATIONS
+// ============================================================
+
+/* =====================================================
+   TWINSTOCK AI - MANAGER
+   LANGUAGE + ROLE + FORECAST
+===================================================== */
+
+
+/* =====================================================
+   TRANSLATIONS
+===================================================== */
+
+const translations = {
+
+    en: {
+
+        language: "Language:",
+        role: "Role:",
+        logout: "Logout",
+
+        manager_dashboard: "Manager Dashboard",
+
+        manager_description:
+            "Monitor inventory, AI predictions and replenishment recommendations.",
+
+        system_live:
+            "● System Live",
+
+        total_products:
+            "Total Products",
+
+        total_inventory:
+            "Total Inventory",
+
+        units:
+            "units",
+
+        high_risk:
+            "High Risk",
+
+        products:
+            "products",
+
+        overstock:
+            "Overstock",
+
+        ai_suggestions:
+            "🤖 AI Suggestions",
+
+        ai_suggestions_description:
+            "AI-powered inventory recommendations",
+
+        high_risk_label:
+            "HIGH RISK",
+
+        medium_risk:
+            "MEDIUM RISK",
+
+        overstock_label:
+            "OVERSTOCK",
+
+        stockout_prediction:
+            "Stockout predicted based on current demand.",
+
+        demand_increasing:
+            "Demand is increasing.",
+
+        overstock_message:
+            "Current inventory may cover expected demand.",
+
+        current_stock:
+            "Current Stock",
+
+        predicted_demand:
+            "Predicted Demand",
+
+        recommended:
+            "Recommended",
+
+        daily_demand:
+            "Daily Demand",
+
+        status:
+            "Status",
+
+        review:
+            "Review",
+
+        view_recommendation:
+            "View Recommendation →",
+
+        view_details:
+            "View Details →",
+
+        inventory_overview:
+            "📋 Inventory Overview",
+
+        latest_activity:
+            "Latest warehouse activity",
+
+        today:
+            "Today",
+
+        ai_warehouse_assistant:
+            "AI Warehouse Assistant",
+
+        bob_greeting:
+            "Hello! I'm your warehouse AI assistant. I can help you understand inventory risks, predictions and replenishment recommendations.",
+
+        reorder_question:
+            "Which products should I reorder?",
+
+        laptop_question:
+            "Why is Laptop high risk?",
+
+        chat_placeholder:
+            "Ask IBM Bob about your inventory...",
+
+        demand_forecasting:
+            "🔮 Demand Forecasting",
+
+        forecast_description:
+            "Predict future demand using TwinStock AI.",
+
+        ai_forecast:
+            "AI Forecast",
+
+        product_item_id:
+            "Product / Item ID",
+
+        forecast_item_placeholder:
+            "Example: ITM10025",
+
+        forecast_horizon:
+            "Forecast Horizon",
+
+        next_7_days:
+            "Next 7 Days",
+
+        next_14_days:
+            "Next 14 Days",
+
+        next_30_days:
+            "Next 30 Days",
+
+        generate_forecast:
+            "🔮 Generate Forecast",
+
+        generating_forecast:
+            "⏳ Generating forecast...",
+
+        product:
+            "Product",
+
+        model:
+            "Model",
+
+        forecast_days:
+            "Forecast Days",
+
+        total_expected_demand:
+            "Total Expected Demand",
+
+        date:
+            "Date"
+
+    },
+
+
+    hi: {
+
+        language: "भाषा:",
+
+        role: "भूमिका:",
+
+        logout: "लॉगआउट",
+
+        manager_dashboard:
+            "मैनेजर डैशबोर्ड",
+
+        manager_description:
+            "इन्वेंटरी, AI पूर्वानुमान और पुनःपूर्ति सुझावों की निगरानी करें।",
+
+        system_live:
+            "● सिस्टम लाइव",
+
+        total_products:
+            "कुल उत्पाद",
+
+        total_inventory:
+            "कुल इन्वेंटरी",
+
+        units:
+            "इकाइयाँ",
+
+        high_risk:
+            "उच्च जोखिम",
+
+        products:
+            "उत्पाद",
+
+        overstock:
+            "अधिक स्टॉक",
+
+        ai_suggestions:
+            "🤖 AI सुझाव",
+
+        ai_suggestions_description:
+            "AI आधारित इन्वेंटरी सुझाव",
+
+        high_risk_label:
+            "उच्च जोखिम",
+
+        medium_risk:
+            "मध्यम जोखिम",
+
+        overstock_label:
+            "अधिक स्टॉक",
+
+        stockout_prediction:
+            "वर्तमान मांग के आधार पर स्टॉक समाप्त होने का अनुमान है।",
+
+        demand_increasing:
+            "मांग बढ़ रही है।",
+
+        overstock_message:
+            "वर्तमान इन्वेंटरी अपेक्षित मांग को पूरा कर सकती है।",
+
+        current_stock:
+            "वर्तमान स्टॉक",
+
+        predicted_demand:
+            "अनुमानित मांग",
+
+        recommended:
+            "अनुशंसित",
+
+        daily_demand:
+            "दैनिक मांग",
+
+        status:
+            "स्थिति",
+
+        review:
+            "समीक्षा",
+
+        view_recommendation:
+            "अनुशंसा देखें →",
+
+        view_details:
+            "विवरण देखें →",
+
+        inventory_overview:
+            "📋 इन्वेंटरी अवलोकन",
+
+        latest_activity:
+            "नवीनतम वेयरहाउस गतिविधि",
+
+        today:
+            "आज",
+
+        ai_warehouse_assistant:
+            "AI वेयरहाउस सहायक",
+
+        bob_greeting:
+            "नमस्ते! मैं आपका वेयरहाउस AI सहायक हूँ। मैं आपको इन्वेंटरी जोखिम, पूर्वानुमान और पुनःपूर्ति सुझाव समझने में मदद कर सकता हूँ।",
+
+        reorder_question:
+            "मुझे किन उत्पादों को दोबारा ऑर्डर करना चाहिए?",
+
+        laptop_question:
+            "Laptop उच्च जोखिम वाला क्यों है?",
+
+        chat_placeholder:
+            "IBM Bob से अपनी इन्वेंटरी के बारे में पूछें...",
+
+        demand_forecasting:
+            "🔮 मांग पूर्वानुमान",
+
+        forecast_description:
+            "TwinStock AI का उपयोग करके भविष्य की मांग का अनुमान लगाएँ।",
+
+        ai_forecast:
+            "AI पूर्वानुमान",
+
+        product_item_id:
+            "उत्पाद / आइटम ID",
+
+        forecast_item_placeholder:
+            "उदाहरण: ITM10025",
+
+        forecast_horizon:
+            "पूर्वानुमान अवधि",
+
+        next_7_days:
+            "अगले 7 दिन",
+
+        next_14_days:
+            "अगले 14 दिन",
+
+        next_30_days:
+            "अगले 30 दिन",
+
+        generate_forecast:
+            "🔮 पूर्वानुमान बनाएँ",
+
+        generating_forecast:
+            "⏳ पूर्वानुमान बनाया जा रहा है...",
+
+        product:
+            "उत्पाद",
+
+        model:
+            "मॉडल",
+
+        forecast_days:
+            "पूर्वानुमान दिन",
+
+        total_expected_demand:
+            "कुल अपेक्षित मांग",
+
+        date:
+            "तारीख"
+
+    },
+
+
+    kn: {
+
+        language: "ಭಾಷೆ:",
+
+        role: "ಪಾತ್ರ:",
+
+        logout: "ಲಾಗ್‌ಔಟ್",
+
+        manager_dashboard:
+            "ಮ್ಯಾನೇಜರ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+
+        manager_description:
+            "ದಾಸ್ತಾನು, AI ಮುನ್ಸೂಚನೆಗಳು ಮತ್ತು ಮರುಪೂರೈಕೆ ಶಿಫಾರಸುಗಳನ್ನು ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಿ.",
+
+        system_live:
+            "● ಸಿಸ್ಟಮ್ ಲೈವ್",
+
+        total_products:
+            "ಒಟ್ಟು ಉತ್ಪನ್ನಗಳು",
+
+        total_inventory:
+            "ಒಟ್ಟು ದಾಸ್ತಾನು",
+
+        units:
+            "ಘಟಕಗಳು",
+
+        high_risk:
+            "ಹೆಚ್ಚಿನ ಅಪಾಯ",
+
+        products:
+            "ಉತ್ಪನ್ನಗಳು",
+
+        overstock:
+            "ಹೆಚ್ಚುವರಿ ದಾಸ್ತಾನು",
+
+        ai_suggestions:
+            "🤖 AI ಸಲಹೆಗಳು",
+
+        ai_suggestions_description:
+            "AI ಆಧಾರಿತ ದಾಸ್ತಾನು ಶಿಫಾರಸುಗಳು",
+
+        high_risk_label:
+            "ಹೆಚ್ಚಿನ ಅಪಾಯ",
+
+        medium_risk:
+            "ಮಧ್ಯಮ ಅಪಾಯ",
+
+        overstock_label:
+            "ಹೆಚ್ಚುವರಿ ದಾಸ್ತಾನು",
+
+        stockout_prediction:
+            "ಪ್ರಸ್ತುತ ಬೇಡಿಕೆಯ ಆಧಾರದ ಮೇಲೆ ಸ್ಟಾಕ್ ಮುಗಿಯುವ ಸಾಧ್ಯತೆಯಿದೆ.",
+
+        demand_increasing:
+            "ಬೇಡಿಕೆ ಹೆಚ್ಚುತ್ತಿದೆ.",
+
+        overstock_message:
+            "ಪ್ರಸ್ತುತ ದಾಸ್ತಾನು ನಿರೀಕ್ಷಿತ ಬೇಡಿಕೆಯನ್ನು ಪೂರೈಸಬಹುದು.",
+
+        current_stock:
+            "ಪ್ರಸ್ತುತ ದಾಸ್ತಾನು",
+
+        predicted_demand:
+            "ಅಂದಾಜು ಬೇಡಿಕೆ",
+
+        recommended:
+            "ಶಿಫಾರಸು",
+
+        daily_demand:
+            "ದೈನಂದಿನ ಬೇಡಿಕೆ",
+
+        status:
+            "ಸ್ಥಿತಿ",
+
+        review:
+            "ಪರಿಶೀಲನೆ",
+
+        view_recommendation:
+            "ಶಿಫಾರಸು ವೀಕ್ಷಿಸಿ →",
+
+        view_details:
+            "ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ →",
+
+        inventory_overview:
+            "📋 ದಾಸ್ತಾನು ಅವಲೋಕನ",
+
+        latest_activity:
+            "ಇತ್ತೀಚಿನ ಗೋದಾಮಿನ ಚಟುವಟಿಕೆ",
+
+        today:
+            "ಇಂದು",
+
+        ai_warehouse_assistant:
+            "AI ಗೋದಾಮಿನ ಸಹಾಯಕ",
+
+        bob_greeting:
+            "ನಮಸ್ಕಾರ! ನಾನು ನಿಮ್ಮ ಗೋದಾಮಿನ AI ಸಹಾಯಕ. ದಾಸ್ತಾನು ಅಪಾಯಗಳು, ಮುನ್ಸೂಚನೆಗಳು ಮತ್ತು ಮರುಪೂರೈಕೆ ಶಿಫಾರಸುಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ನಾನು ಸಹಾಯ ಮಾಡಬಹುದು.",
+
+        reorder_question:
+            "ಯಾವ ಉತ್ಪನ್ನಗಳನ್ನು ಮರುಆರ್ಡರ್ ಮಾಡಬೇಕು?",
+
+        laptop_question:
+            "Laptop ಹೆಚ್ಚಿನ ಅಪಾಯದಲ್ಲಿರುವುದೇಕೆ?",
+
+        chat_placeholder:
+            "ನಿಮ್ಮ ದಾಸ್ತಾನು ಕುರಿತು IBM Bob ಅನ್ನು ಕೇಳಿ...",
+
+        demand_forecasting:
+            "🔮 ಬೇಡಿಕೆ ಮುನ್ಸೂಚನೆ",
+
+        forecast_description:
+            "TwinStock AI ಬಳಸಿ ಭವಿಷ್ಯದ ಬೇಡಿಕೆಯನ್ನು ಊಹಿಸಿ.",
+
+        ai_forecast:
+            "AI ಮುನ್ಸೂಚನೆ",
+
+        product_item_id:
+            "ಉತ್ಪನ್ನ / ಐಟಂ ID",
+
+        forecast_item_placeholder:
+            "ಉದಾಹರಣೆ: ITM10025",
+
+        forecast_horizon:
+            "ಮುನ್ಸೂಚನೆ ಅವಧಿ",
+
+        next_7_days:
+            "ಮುಂದಿನ 7 ದಿನಗಳು",
+
+        next_14_days:
+            "ಮುಂದಿನ 14 ದಿನಗಳು",
+
+        next_30_days:
+            "ಮುಂದಿನ 30 ದಿನಗಳು",
+
+        generate_forecast:
+            "🔮 ಮುನ್ಸೂಚನೆ ರಚಿಸಿ",
+
+        generating_forecast:
+            "⏳ ಮುನ್ಸೂಚನೆ ರಚಿಸಲಾಗುತ್ತಿದೆ...",
+
+        product:
+            "ಉತ್ಪನ್ನ",
+
+        model:
+            "ಮಾದರಿ",
+
+        forecast_days:
+            "ಮುನ್ಸೂಚನೆ ದಿನಗಳು",
+
+        total_expected_demand:
+            "ಒಟ್ಟು ನಿರೀಕ್ಷಿತ ಬೇಡಿಕೆ",
+
+        date:
+            "ದಿನಾಂಕ"
+
+    }
+
+};
+
+
+/* =====================================================
+   APPLY LANGUAGE
+===================================================== */
+
+function applyLanguage(language) {
+
+    const dictionary =
+        translations[language] || translations.en;
+
+
+    /*
+     * Normal text
+     */
+
+    document
+        .querySelectorAll("[data-i18n]")
+        .forEach(element => {
+
+            const key =
+                element.getAttribute("data-i18n");
+
+            if (dictionary[key]) {
+
+                element.textContent =
+                    dictionary[key];
+
+            }
+
+        });
+
+
+    /*
+     * Placeholder text
+     */
+
+    document
+        .querySelectorAll("[data-i18n-placeholder]")
+        .forEach(element => {
+
+            const key =
+                element.getAttribute(
+                    "data-i18n-placeholder"
+                );
+
+            if (dictionary[key]) {
+
+                element.placeholder =
+                    dictionary[key];
+
+            }
+
+        });
+
+
+    /*
+     * Save language
+     */
+
+    localStorage.setItem(
+        "twinstock_language",
+        language
+    );
+
+
+    /*
+     * HTML language
+     */
+
+    document.documentElement.lang =
+        language;
+
+
+    /*
+     * Keep select selected
+     */
+
+    const select =
+        document.getElementById(
+            "languageSelect"
+        );
+
+    if (select) {
+
+        select.value = language;
+
+    }
+
+}
+
+
+/* =====================================================
+   LANGUAGE SELECT
+===================================================== */
+>>>>>>> 6194e2311e617701927bea30ce2d34cf526557bf
 
 document.addEventListener(
     "DOMContentLoaded",
     function () {
 
+<<<<<<< HEAD
         console.log(
             "TwinStock AI Manager loaded."
         );
@@ -1268,3 +1857,612 @@ document.addEventListener(
         loadDashboardData();
     }
 );
+=======
+        const languageSelect =
+            document.getElementById(
+                "languageSelect"
+            );
+
+
+        const savedLanguage =
+            localStorage.getItem(
+                "twinstock_language"
+            ) || "en";
+
+
+        if (languageSelect) {
+
+            languageSelect.value =
+                savedLanguage;
+
+
+            languageSelect.addEventListener(
+                "change",
+                function () {
+
+                    applyLanguage(
+                        this.value
+                    );
+
+                }
+            );
+
+        }
+
+
+        applyLanguage(
+            savedLanguage
+        );
+
+    }
+);
+
+
+/* =====================================================
+   ROLE SWITCH
+===================================================== */
+
+function switchRole() {
+
+    const roleSelect =
+        document.getElementById(
+            "roleSelect"
+        );
+
+
+    if (!roleSelect) {
+        return;
+    }
+
+
+    const role =
+        roleSelect.value;
+
+
+    if (role === "worker") {
+
+        window.location.href =
+            "worker.html";
+
+    }
+
+
+    if (role === "manager") {
+
+        window.location.href =
+            "manager.html";
+
+    }
+
+}
+
+
+/* =====================================================
+   HOME / LOGOUT
+===================================================== */
+
+function goHome() {
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+/* =====================================================
+   RECOMMENDATION
+===================================================== */
+
+function openRecommendation(product) {
+
+    alert(
+        "Recommendation for " +
+        product +
+        " will be shown here."
+    );
+
+}
+
+
+/* =====================================================
+   IBM BOB
+===================================================== */
+
+function askQuestion(question) {
+
+    const input =
+        document.getElementById(
+            "chatInput"
+        );
+
+
+    if (!input) {
+        return;
+    }
+
+
+    input.value =
+        question;
+
+
+    sendMessage();
+
+}
+
+
+/* =====================================================
+   CHAT ENTER
+===================================================== */
+
+function handleChatKey(event) {
+
+    if (event.key === "Enter") {
+
+        sendMessage();
+
+    }
+
+}
+
+
+/* =====================================================
+   CHAT MESSAGE
+===================================================== */
+
+function sendMessage() {
+
+    const input =
+        document.getElementById(
+            "chatInput"
+        );
+
+
+    const messages =
+        document.getElementById(
+            "chatMessages"
+        );
+
+
+    if (!input || !messages) {
+        return;
+    }
+
+
+    const question =
+        input.value.trim();
+
+
+    if (!question) {
+        return;
+    }
+
+
+    /*
+     * User message
+     */
+
+    const userMessage =
+        document.createElement("div");
+
+    userMessage.className =
+        "message user-message";
+
+
+    userMessage.innerHTML = `
+        <div class="message-avatar">
+            👤
+        </div>
+
+        <div class="message-content">
+
+            <span class="message-name">
+                You
+            </span>
+
+            <p>
+                ${escapeHtml(question)}
+            </p>
+
+        </div>
+    `;
+
+
+    messages.appendChild(
+        userMessage
+    );
+
+
+    input.value = "";
+
+
+    /*
+     * Temporary Bob response
+     */
+
+    setTimeout(
+        function () {
+
+            const botMessage =
+                document.createElement("div");
+
+            botMessage.className =
+                "message bot-message";
+
+
+            botMessage.innerHTML = `
+                <div class="message-avatar">
+                    🤖
+                </div>
+
+                <div class="message-content">
+
+                    <span class="message-name">
+                        IBM Bob
+                    </span>
+
+                    <p>
+                        I am analyzing your inventory information.
+                    </p>
+
+                </div>
+            `;
+
+
+            messages.appendChild(
+                botMessage
+            );
+
+
+            messages.scrollTop =
+                messages.scrollHeight;
+
+        },
+        500
+    );
+
+}
+
+
+/* =====================================================
+   HTML ESCAPE
+===================================================== */
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        text;
+
+    return div.innerHTML;
+
+}
+
+
+/* =====================================================
+   FORECAST
+===================================================== */
+
+async function generateForecast() {
+
+    const itemInput =
+        document.getElementById(
+            "forecastItemId"
+        );
+
+
+    const horizonInput =
+        document.getElementById(
+            "forecastHorizon"
+        );
+
+
+    const loading =
+        document.getElementById(
+            "forecastLoading"
+        );
+
+
+    const error =
+        document.getElementById(
+            "forecastError"
+        );
+
+
+    const result =
+        document.getElementById(
+            "forecastResult"
+        );
+
+
+    if (!itemInput || !horizonInput) {
+        return;
+    }
+
+
+    const itemId =
+        itemInput.value.trim();
+
+
+    const horizon =
+        Number(
+            horizonInput.value
+        );
+
+
+    if (!itemId) {
+
+        error.textContent =
+            "Please enter a Product / Item ID.";
+
+        error.style.display =
+            "block";
+
+        result.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    error.style.display =
+        "none";
+
+    result.style.display =
+        "none";
+
+    loading.style.display =
+        "block";
+
+
+    try {
+
+        /*
+         * Your MAIN backend.
+         *
+         * Change this ONLY if your backend
+         * runs on another port.
+         */
+
+        const response =
+            await fetch(
+                `http://127.0.0.1:8000/forecast/${encodeURIComponent(itemId)}?horizon=${horizon}`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            let message =
+                "Forecast request failed.";
+
+            try {
+
+                const data =
+                    await response.json();
+
+                if (data.detail) {
+
+                    message =
+                        typeof data.detail === "string"
+                            ? data.detail
+                            : JSON.stringify(
+                                data.detail
+                              );
+
+                }
+
+            } catch (_) {}
+
+
+            throw new Error(
+                message
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        displayForecast(
+            data
+        );
+
+
+    } catch (err) {
+
+        console.error(
+            "Forecast error:",
+            err
+        );
+
+
+        error.textContent =
+            err.message ||
+            "Unable to generate forecast.";
+
+
+        error.style.display =
+            "block";
+
+
+    } finally {
+
+        loading.style.display =
+            "none";
+
+    }
+
+}
+
+
+/* =====================================================
+   DISPLAY FORECAST
+===================================================== */
+
+function displayForecast(data) {
+
+    const result =
+        document.getElementById(
+            "forecastResult"
+        );
+
+
+    const product =
+        document.getElementById(
+            "forecastProduct"
+        );
+
+
+    const model =
+        document.getElementById(
+            "forecastModel"
+        );
+
+
+    const days =
+        document.getElementById(
+            "forecastDays"
+        );
+
+
+    const total =
+        document.getElementById(
+            "forecastTotal"
+        );
+
+
+    const tableBody =
+        document.getElementById(
+            "forecastTableBody"
+        );
+
+
+    if (!result ||
+        !product ||
+        !model ||
+        !days ||
+        !total ||
+        !tableBody) {
+
+        return;
+
+    }
+
+
+    /*
+     * Expected backend response:
+     *
+     * {
+     *   item_id: "ITM10025",
+     *   model: "Baseline (Moving Average)",
+     *   horizon: 7,
+     *   forecast: [
+     *      {
+     *        date: "2026-08-10",
+     *        predicted_demand: 12
+     *      }
+     *   ]
+     * }
+     */
+
+
+    const forecast =
+        Array.isArray(data.forecast)
+            ? data.forecast
+            : [];
+
+
+    const totalDemand =
+        forecast.reduce(
+            function (sum, row) {
+
+                return sum +
+                    Number(
+                        row.predicted_demand || 0
+                    );
+
+            },
+            0
+        );
+
+
+    product.textContent =
+        data.item_id || "-";
+
+
+    model.textContent =
+        data.model || "-";
+
+
+    days.textContent =
+        data.horizon ||
+        forecast.length ||
+        "-";
+
+
+    total.textContent =
+        Math.round(
+            totalDemand
+        );
+
+
+    tableBody.innerHTML =
+        "";
+
+
+    forecast.forEach(
+        function (row) {
+
+            const tr =
+                document.createElement("tr");
+
+
+            const date =
+                document.createElement("td");
+
+            date.textContent =
+                row.date || "-";
+
+
+            const demand =
+                document.createElement("td");
+
+            demand.textContent =
+                row.predicted_demand ?? 0;
+
+
+            tr.appendChild(
+                date
+            );
+
+
+            tr.appendChild(
+                demand
+            );
+
+
+            tableBody.appendChild(
+                tr
+            );
+
+        }
+    );
+
+
+    result.style.display =
+        "block";
+
+}
+>>>>>>> 6194e2311e617701927bea30ce2d34cf526557bf

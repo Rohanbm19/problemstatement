@@ -1,69 +1,605 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>TwinStock AI</title>
-    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+
+        /* ================================
+           RESET
+        ================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        /* ================================
+           BODY
+        ================================= */
+
+        body {
+
+            min-height: 100vh;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    #dbeafe,
+                    transparent 35%
+                ),
+                #f5f7fb;
+
+            color: #172033;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            position: relative;
+
+        }
+
+
+        /* ================================
+           LANGUAGE SWITCHER
+           TOP RIGHT
+        ================================= */
+
+        .language-switcher {
+
+            position: fixed;
+
+            top: 24px;
+
+            right: 30px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            padding: 10px 14px;
+
+            background: #ffffff;
+
+            border: 1px solid #e2e8f0;
+
+            border-radius: 10px;
+
+            box-shadow:
+                0 4px 15px
+                rgba(0, 0, 0, 0.06);
+
+            z-index: 1000;
+
+        }
+
+
+        .language-switcher span {
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            color: #475569;
+
+        }
+
+
+        .language-switcher select {
+
+            border: none;
+
+            outline: none;
+
+            background: transparent;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            color: #1e293b;
+
+            cursor: pointer;
+
+        }
+
+
+        /* ================================
+           MAIN CONTAINER
+        ================================= */
+
+        .landing-container {
+
+            width: 100%;
+
+            max-width: 520px;
+
+            min-height: 100vh;
+
+            padding: 100px 20px 40px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            justify-content: center;
+
+            text-align: center;
+
+        }
+
+
+        /* ================================
+           BRAND
+        ================================= */
+
+        .brand {
+
+            margin-bottom: 30px;
+
+        }
+
+
+        .brand h1 {
+
+            margin: 0;
+
+            font-size: 42px;
+
+            font-weight: 800;
+
+            letter-spacing: -1px;
+
+            color: #172033;
+
+        }
+
+
+        /* ================================
+           ROLE CARD
+        ================================= */
+
+        .role-card {
+
+            width: 100%;
+
+            padding: 35px;
+
+            background: #ffffff;
+
+            border: 1px solid #e2e8f0;
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 15px 40px
+                rgba(15, 23, 42, 0.08);
+
+        }
+
+
+        .role-card h2 {
+
+            margin: 0 0 10px;
+
+            font-size: 26px;
+
+            color: #172033;
+
+        }
+
+
+        .role-subtitle {
+
+            margin: 0 0 28px;
+
+            color: #64748b;
+
+            font-size: 15px;
+
+            line-height: 1.5;
+
+        }
+
+
+        /* ================================
+           ROLE OPTIONS
+        ================================= */
+
+        .role-options {
+
+            width: 100%;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 15px;
+
+        }
+
+
+        /* ================================
+           ROLE BUTTON
+        ================================= */
+
+        .role-button {
+
+            width: 100%;
+
+            min-height: 75px;
+
+            padding: 15px 18px;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 16px;
+
+            text-align: left;
+
+            background: #ffffff;
+
+            border: 1px solid #e2e8f0;
+
+            border-radius: 14px;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                border-color 0.2s ease,
+                background 0.2s ease;
+
+        }
+
+
+        .role-button:hover {
+
+            transform: translateY(-2px);
+
+            border-color: #2563eb;
+
+            background: #f8fbff;
+
+            box-shadow:
+                0 8px 20px
+                rgba(15, 23, 42, 0.08);
+
+        }
+
+
+        /* ================================
+           ROLE ICON
+        ================================= */
+
+        .role-icon {
+
+            width: 46px;
+
+            height: 46px;
+
+            flex-shrink: 0;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 25px;
+
+            background: #f1f5f9;
+
+            border-radius: 12px;
+
+        }
+
+
+        /* ================================
+           ROLE TEXT
+        ================================= */
+
+        .role-button strong {
+
+            font-size: 17px;
+
+            color: #172033;
+
+        }
+
+
+        /* ================================
+           ARROW
+        ================================= */
+
+        .arrow {
+
+            margin-left: auto;
+
+            font-size: 22px;
+
+            color: #2563eb;
+
+            transition:
+                transform 0.2s ease;
+
+        }
+
+
+        .role-button:hover .arrow {
+
+            transform:
+                translateX(4px);
+
+        }
+
+
+        /* ================================
+           FOOTER
+        ================================= */
+
+        .footer-text {
+
+            margin-top: 25px;
+
+            margin-bottom: 0;
+
+            font-size: 13px;
+
+            color: #94a3b8;
+
+        }
+
+
+        /* ================================
+           MOBILE
+        ================================= */
+
+        @media (max-width: 600px) {
+
+            .language-switcher {
+
+                top: 15px;
+
+                right: 15px;
+
+                padding: 8px 10px;
+
+                gap: 6px;
+
+            }
+
+
+            .language-switcher span {
+
+                display: none;
+
+            }
+
+
+            .landing-container {
+
+                padding:
+                    90px 18px
+                    30px;
+
+            }
+
+
+            .brand {
+
+                margin-bottom: 25px;
+
+            }
+
+
+            .brand h1 {
+
+                font-size: 34px;
+
+            }
+
+
+            .role-card {
+
+                padding: 25px 20px;
+
+            }
+
+
+            .role-card h2 {
+
+                font-size: 23px;
+
+            }
+
+
+            .role-subtitle {
+
+                font-size: 14px;
+
+            }
+
+        }
+
+    </style>
+
 </head>
 
-<body class="landing-page">
+
+<body>
+
+
+    <!-- LANGUAGE - TOP RIGHT -->
+
+    <div class="language-switcher">
+
+        <span data-i18n="language">
+            Language:
+        </span>
+
+        <select id="languageSelect">
+
+            <option value="en">
+                English
+            </option>
+
+            <option value="hi">
+                हिन्दी
+            </option>
+
+            <option value="kn">
+                ಕನ್ನಡ
+            </option>
+
+        </select>
+
+    </div>
+
+
+
+    <!-- MAIN CENTER CONTENT -->
 
     <div class="landing-container">
 
+
+        <!-- BRAND -->
+
         <div class="brand">
-            
-            <h1>TwinStock AI</h1>
-            
+
+            <h1>
+                TwinStock AI
+            </h1>
+
         </div>
+
+
+
+        <!-- ROLE CARD -->
 
         <div class="role-card">
 
-            <h2>Select Your Role</h2>
-            <p class="role-subtitle">
-                Choose how you want to access TwinStock AI
+
+            <h2 data-i18n="select_role">
+
+                Select Your Role
+
+            </h2>
+
+
+            <p
+                class="role-subtitle"
+                data-i18n="role_subtitle">
+
+                Choose how you want to access
+                TwinStock AI
+
             </p>
+
+
 
             <div class="role-options">
 
-                <button class="role-button manager-role"
-                        onclick="selectRole('manager')">
 
-                    <span class="role-icon">👨‍💼</span>
+                <!-- MANAGER -->
+
+                <button
+                    type="button"
+                    class="role-button manager-role"
+                    onclick="selectRole('manager')">
+
+                    <span class="role-icon">
+                        👨‍💼
+                    </span>
 
                     <div>
-                        <strong>Manager</strong>
+
+                        <strong data-i18n="manager">
+                            Manager
+                        </strong>
+
                     </div>
 
-                    <span class="arrow">→</span>
+                    <span class="arrow">
+                        →
+                    </span>
 
                 </button>
 
 
-                <button class="role-button worker-role"
-                        onclick="selectRole('worker')">
 
-                    <span class="role-icon">👷</span>
+                <!-- WORKER -->
+
+                <button
+                    type="button"
+                    class="role-button worker-role"
+                    onclick="selectRole('worker')">
+
+                    <span class="role-icon">
+                        👷
+                    </span>
 
                     <div>
-                        <strong>Worker</strong>
+
+                        <strong data-i18n="worker">
+                            Worker
+                        </strong>
+
                     </div>
 
-                    <span class="arrow">→</span>
+                    <span class="arrow">
+                        →
+                    </span>
 
                 </button>
+
 
             </div>
 
         </div>
 
+
+
+        <!-- FOOTER -->
+
         <p class="footer-text">
+
             By ByteMe
+
         </p>
 
+
     </div>
+
+
+    <!-- YOUR JS -->
 
     <script src="js/index.js"></script>
 
 </body>
+
 </html>
