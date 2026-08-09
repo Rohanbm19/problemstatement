@@ -1,0 +1,112 @@
+{
+  "language": "ಭಾಷೆ:",
+  "role": "ಪಾತ್ರ:",
+  "logout": "ಲಾಗ್‌ಔಟ್",
+
+  "dashboard": "ಕಾರ್ಮಿಕ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+  "dashboard_description": "ಗೋದಾಮಿನ ಇನ್ವೆಂಟರಿಯನ್ನು ನವೀಕರಿಸಿ ಮತ್ತು ವಹಿವಾಟುಗಳನ್ನು ದಾಖಲಿಸಿ.",
+  "system_live": "ಸಿಸ್ಟಮ್ ಲೈವ್",
+
+  "total_products": "ಒಟ್ಟು ಉತ್ಪನ್ನಗಳು",
+  "total_inventory": "ಒಟ್ಟು ಇನ್ವೆಂಟರಿ",
+  "high_risk": "ಹೆಚ್ಚಿನ ಅಪಾಯ",
+  "overstock": "ಹೆಚ್ಚುವರಿ ಸ್ಟಾಕ್",
+
+  "units": "ಘಟಕಗಳು",
+  "products": "ಉತ್ಪನ್ನಗಳು",
+
+  "update_inventory": "ಇನ್ವೆಂಟರಿ ನವೀಕರಿಸಿ",
+  "record_transaction": "ಹೊಸ ಗೋದಾಮಿನ ವಹಿವಾಟನ್ನು ದಾಖಲಿಸಿ",
+
+  "product_id": "ಉತ್ಪನ್ನ ID",
+  "product_placeholder": "ಉದಾಹರಣೆ: ITM10000",
+  "product_help": "ಇನ್ವೆಂಟರಿ ಡೇಟಾಬೇಸ್‌ನಿಂದ Item ID ನಮೂದಿಸಿ.",
+
+  "transaction_type": "ವಹಿವಾಟಿನ ಪ್ರಕಾರ",
+
+  "receive": "ಸ್ವೀಕರಿಸಿ",
+  "dispatch": "ಕಳುಹಿಸಿ",
+  "return": "ಹಿಂತಿರುಗಿಸಿ",
+  "damaged": "ಹಾನಿಗೊಳಗಾದ",
+
+  "units_placeholder": "ಘಟಕಗಳನ್ನು ನಮೂದಿಸಿ",
+
+  "location": "ಸ್ಥಳ",
+
+  "shelf_a12": "ಶೆಲ್ಫ್ A12",
+  "shelf_b04": "ಶೆಲ್ಫ್ B04",
+  "shelf_c08": "ಶೆಲ್ಫ್ C08",
+  "shelf_d15": "ಶೆಲ್ಫ್ D15",
+
+  "notes": "ವಿವರಗಳು / ಟಿಪ್ಪಣಿಗಳು",
+  "notes_placeholder": "ಹೆಚ್ಚುವರಿ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ...",
+
+  "submit": "ವಹಿವಾಟು ಸಲ್ಲಿಸಿ",
+  "transaction_success": "ವಹಿವಾಟು ಯಶಸ್ವಿಯಾಗಿ ದಾಖಲಾಗಿದೆ!",
+
+  "recent_transactions": "ಇತ್ತೀಚಿನ ವಹಿವಾಟುಗಳು",
+  "latest_updates": "ಇತ್ತೀಚಿನ ಇನ್ವೆಂಟರಿ ನವೀಕರಣಗಳು",
+  "today": "ಇಂದು",
+
+  "manager_dashboard": "ಮ್ಯಾನೇಜರ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+  "manager_description": "ಇನ್ವೆಂಟರಿ, AI ಮುನ್ಸೂಚನೆಗಳು ಮತ್ತು ಮರುಪೂರೈಕೆ ಶಿಫಾರಸುಗಳನ್ನು ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಿ.",
+
+  "ai_suggestions": "🤖 AI ಸಲಹೆಗಳು",
+  "ai_recommendations": "AI ಆಧಾರಿತ ಇನ್ವೆಂಟರಿ ಶಿಫಾರಸುಗಳು",
+
+  "high_risk_label": "ಹೆಚ್ಚಿನ ಅಪಾಯ",
+  "medium_risk": "ಮಧ್ಯಮ ಅಪಾಯ",
+  "overstock_label": "ಹೆಚ್ಚುವರಿ ಸ್ಟಾಕ್",
+
+  "stockout_predicted": "ಪ್ರಸ್ತುತ ಬೇಡಿಕೆಯ ಆಧಾರದ ಮೇಲೆ ಸ್ಟಾಕ್ ಮುಗಿಯುವ ಸಾಧ್ಯತೆಯಿದೆ.",
+  "demand_increasing": "ಬೇಡಿಕೆ ಹೆಚ್ಚುತ್ತಿದೆ.",
+  "inventory_covers_demand": "ಪ್ರಸ್ತುತ ಇನ್ವೆಂಟರಿಯು ನಿರೀಕ್ಷಿತ ಬೇಡಿಕೆಯನ್ನು ಪೂರೈಸಬಹುದು.",
+
+  "current_stock": "ಪ್ರಸ್ತುತ ಸ್ಟಾಕ್",
+  "predicted_demand": "ಅಂದಾಜು ಬೇಡಿಕೆ",
+  "recommended": "ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ",
+  "daily_demand": "ದೈನಂದಿನ ಬೇಡಿಕೆ",
+  "status": "ಸ್ಥಿತಿ",
+  "review": "ಪರಿಶೀಲಿಸಿ",
+
+  "view_recommendation": "ಶಿಫಾರಸನ್ನು ವೀಕ್ಷಿಸಿ →",
+  "view_details": "ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ →",
+
+  "inventory_overview": "📋 ಇನ್ವೆಂಟರಿ ಅವಲೋಕನ",
+  "latest_activity": "ಇತ್ತೀಚಿನ ಗೋದಾಮಿನ ಚಟುವಟಿಕೆ",
+
+  "ai_warehouse_assistant": "AI ಗೋದಾಮಿನ ಸಹಾಯಕ",
+
+  "bob_greeting": "ನಮಸ್ಕಾರ! ನಾನು ನಿಮ್ಮ ಗೋದಾಮಿನ AI ಸಹಾಯಕ. ಇನ್ವೆಂಟರಿ ಅಪಾಯಗಳು, ಮುನ್ಸೂಚನೆಗಳು ಮತ್ತು ಮರುಪೂರೈಕೆ ಶಿಫಾರಸುಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ನಾನು ಸಹಾಯ ಮಾಡಬಹುದು.",
+
+  "reorder_question": "ಯಾವ ಉತ್ಪನ್ನಗಳನ್ನು ಮರುಆರ್ಡರ್ ಮಾಡಬೇಕು?",
+  "laptop_question": "Laptop ಹೆಚ್ಚಿನ ಅಪಾಯದಲ್ಲಿರುವುದು ಏಕೆ?",
+
+  "chat_placeholder": "IBM Bob ಗೆ ನಿಮ್ಮ ಇನ್ವೆಂಟರಿ ಬಗ್ಗೆ ಕೇಳಿ...",
+
+  "demand_forecasting": "🔮 ಬೇಡಿಕೆ ಮುನ್ಸೂಚನೆ",
+  "forecast_description": "TwinStock AI ಬಳಸಿ ಭವಿಷ್ಯದ ಬೇಡಿಕೆಯನ್ನು ಊಹಿಸಿ.",
+  "ai_forecast": "AI ಮುನ್ಸೂಚನೆ",
+
+  "product_item_id": "ಉತ್ಪನ್ನ / ಐಟಂ ID",
+  "forecast_item_placeholder": "ಉದಾಹರಣೆ: ITM10025",
+
+  "forecast_horizon": "ಮುನ್ಸೂಚನೆ ಅವಧಿ",
+  "next_7_days": "ಮುಂದಿನ 7 ದಿನಗಳು",
+  "next_14_days": "ಮುಂದಿನ 14 ದಿನಗಳು",
+  "next_30_days": "ಮುಂದಿನ 30 ದಿನಗಳು",
+
+  "generate_forecast": "🔮 ಮುನ್ಸೂಚನೆ ರಚಿಸಿ",
+  "generating_forecast": "⏳ ಮುನ್ಸೂಚನೆ ರಚಿಸಲಾಗುತ್ತಿದೆ...",
+
+  "product": "ಉತ್ಪನ್ನ",
+  "model": "ಮಾದರಿ",
+  "forecast_days": "ಮುನ್ಸೂಚನೆ ದಿನಗಳು",
+  "total_expected_demand": "ಒಟ್ಟು ನಿರೀಕ್ಷಿತ ಬೇಡಿಕೆ",
+  "date": "ದಿನಾಂಕ",
+  "manager_role": "ಮ್ಯಾನೇಜರ್",
+  "worker_role": "ಕಾರ್ಮಿಕ","select_role": "ನಿಮ್ಮ ಪಾತ್ರವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+    "role_subtitle": "ನೀವು TwinStock AI ಅನ್ನು ಹೇಗೆ ಪ್ರವೇಶಿಸಲು ಬಯಸುತ್ತೀರಿ ಎಂಬುದನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+    "manager": "ಮ್ಯಾನೇಜರ್",
+    "worker": "ಕಾರ್ಮಿಕ"
+}

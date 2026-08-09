@@ -1,0 +1,110 @@
+{
+  "language": "भाषा:",
+  "role": "भूमिका:",
+  "logout": "लॉगआउट",
+
+  "dashboard": "कर्मचारी डैशबोर्ड",
+  "dashboard_description": "वेयरहाउस इन्वेंटरी अपडेट करें और लेनदेन रिकॉर्ड करें।",
+  "system_live": "सिस्टम लाइव",
+
+  "total_products": "कुल उत्पाद",
+  "total_inventory": "कुल इन्वेंटरी",
+  "high_risk": "उच्च जोखिम",
+  "overstock": "अधिक स्टॉक",
+
+  "units": "इकाइयाँ",
+  "products": "उत्पाद",
+
+  "update_inventory": "इन्वेंटरी अपडेट करें",
+  "record_transaction": "नया वेयरहाउस लेनदेन रिकॉर्ड करें",
+
+  "product_id": "उत्पाद आईडी",
+  "product_placeholder": "उदाहरण: ITM10000",
+  "product_help": "इन्वेंटरी डेटाबेस से Item ID दर्ज करें।",
+
+  "transaction_type": "लेनदेन का प्रकार",
+
+  "receive": "प्राप्त करें",
+  "dispatch": "भेजें",
+  "return": "वापसी",
+  "damaged": "क्षतिग्रस्त",
+
+  "units_placeholder": "इकाइयाँ दर्ज करें",
+
+  "location": "स्थान",
+
+  "shelf_a12": "शेल्फ A12",
+  "shelf_b04": "शेल्फ B04",
+  "shelf_c08": "शेल्फ C08",
+  "shelf_d15": "शेल्फ D15",
+
+  "notes": "विवरण / नोट्स",
+  "notes_placeholder": "अतिरिक्त विवरण दर्ज करें...",
+
+  "submit": "लेनदेन सबमिट करें",
+  "transaction_success": "लेनदेन सफलतापूर्वक रिकॉर्ड किया गया!",
+
+  "recent_transactions": "हाल के लेनदेन",
+  "latest_updates": "नवीनतम इन्वेंटरी अपडेट",
+  "today": "आज",
+
+  "manager_dashboard": "मैनेजर डैशबोर्ड",
+  "manager_description": "इन्वेंटरी, AI भविष्यवाणियों और पुनःपूर्ति की सिफारिशों की निगरानी करें।",
+
+  "ai_suggestions": "🤖 AI सुझाव",
+  "ai_recommendations": "AI-संचालित इन्वेंटरी सिफारिशें",
+
+  "high_risk_label": "उच्च जोखिम",
+  "medium_risk": "मध्यम जोखिम",
+  "overstock_label": "अधिक स्टॉक",
+
+  "stockout_predicted": "वर्तमान मांग के आधार पर स्टॉक खत्म होने की संभावना है।",
+  "demand_increasing": "मांग बढ़ रही है।",
+  "inventory_covers_demand": "वर्तमान इन्वेंटरी अपेक्षित मांग को पूरा कर सकती है।",
+
+  "current_stock": "वर्तमान स्टॉक",
+  "predicted_demand": "अनुमानित मांग",
+  "recommended": "अनुशंसित",
+  "daily_demand": "दैनिक मांग",
+  "status": "स्थिति",
+  "review": "समीक्षा करें",
+
+  "view_recommendation": "सिफारिश देखें →",
+  "view_details": "विवरण देखें →",
+
+  "inventory_overview": "📋 इन्वेंटरी अवलोकन",
+  "latest_activity": "नवीनतम वेयरहाउस गतिविधि",
+
+  "ai_warehouse_assistant": "AI वेयरहाउस सहायक",
+
+  "bob_greeting": "नमस्ते! मैं आपका वेयरहाउस AI सहायक हूँ। मैं आपको इन्वेंटरी जोखिम, भविष्यवाणियों और पुनःपूर्ति सिफारिशों को समझने में मदद कर सकता हूँ।",
+
+  "reorder_question": "किन उत्पादों को दोबारा ऑर्डर करना चाहिए?",
+  "laptop_question": "Laptop उच्च जोखिम वाला क्यों है?",
+
+  "chat_placeholder": "IBM Bob से अपनी इन्वेंटरी के बारे में पूछें...",
+
+  "demand_forecasting": "🔮 मांग पूर्वानुमान",
+  "forecast_description": "TwinStock AI का उपयोग करके भविष्य की मांग का अनुमान लगाएँ।",
+  "ai_forecast": "AI पूर्वानुमान",
+
+  "product_item_id": "उत्पाद / आइटम ID",
+  "forecast_item_placeholder": "उदाहरण: ITM10025",
+
+  "forecast_horizon": "पूर्वानुमान अवधि",
+  "next_7_days": "अगले 7 दिन",
+  "next_14_days": "अगले 14 दिन",
+  "next_30_days": "अगले 30 दिन",
+
+  "generate_forecast": "🔮 पूर्वानुमान तैयार करें",
+  "generating_forecast": "⏳ पूर्वानुमान तैयार हो रहा है...",
+
+  "product": "उत्पाद",
+  "model": "मॉडल",
+  "forecast_days": "पूर्वानुमान दिन",
+  "total_expected_demand": "कुल अपेक्षित मांग",
+  "date": "तारीख",
+  "role_subtitle": "चुनें कि आप TwinStock AI का उपयोग कैसे करना चाहते हैं",
+    "manager": "मैनेजर",
+    "worker": "कर्मचारी"
+}
