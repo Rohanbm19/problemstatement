@@ -4,11 +4,25 @@
     box-sizing: border-box;
 }
 
+:root {
+    --font-header: Arial, "Uber", sans-serif;
+    --font-base: Athelas, Moara, serif;
+}
+
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-base);
     background: #f5f7fb;
     color: #172033;
+}
+
+h1, h2, h3, h4, h5, h6,
+.topbar, .brand-small,
+.brand h1, .page-heading h1,
+.summary-card h2, .panel-header h2,
+.chat-header h2, .product-title h2,
+.ai-title h2 {
+    font-family: var(--font-header);
 }
 
 
