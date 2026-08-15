@@ -10,8 +10,12 @@
 
     <title>TwinStock AI - Manager</title>
 
-    <link rel="stylesheet"
-          href="css/style.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+        <link rel="stylesheet"
+            href="css/style.css">
 
 </head>
 
@@ -36,65 +40,34 @@
 
     <div class="header-right">
 
+        <nav class="settings-nav">
 
-        <!-- LANGUAGE -->
+            <div class="settings-item language-switcher">
+                <span class="sr-only">Language</span>
+                <select id="languageSelect">
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="kn">ಕನ್ನಡ</option>
+                </select>
+            </div>
 
-        <div class="language-switcher">
+            <div class="settings-item role-switcher">
+                <span class="sr-only">Role</span>
+                <select id="roleSelect" onchange="switchRole()">
+                    <option value="manager" data-i18n="manager_role">👨‍💼 Manager</option>
+                    <option value="worker" data-i18n="worker_role">👷 Worker</option>
+                </select>
+            </div>
 
-            <span data-i18n="language">
-                Language:
-            </span>
+            <div class="settings-item">
+                <button id="themeToggle" class="theme-toggle" title="Toggle theme">🌙</button>
+            </div>
 
-            <select id="languageSelect">
+            <div class="settings-item">
+                <button class="logout-btn" onclick="goHome()" data-i18n="logout">Logout</button>
+            </div>
 
-                <option value="en">
-                    English
-                </option>
-
-                <option value="hi">
-                    हिन्दी
-                </option>
-
-                <option value="kn">
-                    ಕನ್ನಡ
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- ROLE -->
-
-        <div class="role-switcher">
-
-            <span data-i18n="role">
-                Role:
-            </span>
-
-            <select id="roleSelect"
-                    onchange="switchRole()">
-
-                <option value="manager" data-i18n="manager_role">
-                    👨‍💼 Manager
-                </option>
-
-                <option value="worker" data-i18n="worker_role">
-                    👷 Worker
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <button class="logout-btn"
-                onclick="goHome()"
-                data-i18n="logout">
-
-            Logout
-
-        </button>
+        </nav>
 
     </div>
 
@@ -335,13 +308,9 @@
 
         <div>
 
-            <span data-i18n="current_stock">
-                Current Stock
-            </span>
+            <span data-i18n="current_stock">Current Stock</span>
 
-            <strong>
-                120 units
-            </strong>
+            <span class="stat-pill" title="Current stock">120 units</span>
 
         </div>
 
@@ -440,13 +409,9 @@
 
         <div>
 
-            <span data-i18n="current_stock">
-                Current Stock
-            </span>
+            <span data-i18n="current_stock">Current Stock</span>
 
-            <strong>
-                180 units
-            </strong>
+            <span class="stat-pill" title="Current stock">180 units</span>
 
         </div>
 
@@ -1073,6 +1038,7 @@
      JAVASCRIPT
 ====================================================== -->
 <script src="js/language.js"></script>
+<script src="js/theme.js"></script>
 <script src="js/manager.js"></script>
 
 </body>

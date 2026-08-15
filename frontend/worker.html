@@ -3,60 +3,38 @@
 
 <head>
 
-    <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>TwinStock AI - Worker</title>
-
-    <link rel="stylesheet"
-          href="css/style.css">
-
-</head>
-
-
-<body>
-
-<header class="topbar">
-
-    <!-- BRAND -->
-
-    <div class="brand-small">
-
-        <span>📦</span>
-
-        <strong>TwinStock AI</strong>
-
-    </div>
-
-
     <div class="header-right">
 
+        <nav class="settings-nav">
 
-        <!-- LANGUAGE -->
+            <div class="settings-item language-switcher">
+                <span class="sr-only">Language</span>
+                <select id="languageSelect">
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="kn">ಕನ್ನಡ</option>
+                </select>
+            </div>
 
-        <div class="language-switcher">
+            <div class="settings-item role-switcher">
+                <span class="sr-only">Role</span>
+                <select id="roleSelect">
+                    <option value="worker">👷 Worker</option>
+                    <option value="manager">👨‍💼 Manager</option>
+                </select>
+            </div>
 
-            <span data-i18n="language">
-                Language
-            </span>
+            <div class="settings-item">
+                <button id="themeToggle" class="theme-toggle" title="Toggle theme">🌙</button>
+            </div>
 
-            <select id="languageSelect">
+            <div class="settings-item">
+                <button class="logout-btn" onclick="goHome()" data-i18n="logout">Logout</button>
+            </div>
 
-                <option value="en">
-                    English
-                </option>
+        </nav>
 
-                <option value="hi">
-                    हिन्दी
-                </option>
-
-                <option value="kn">
-                    ಕನ್ನಡ
-                </option>
-
-            </select>
+    </div>
 
         </div>
 
@@ -86,6 +64,8 @@
 
 
         <!-- LOGOUT -->
+
+        <button id="themeToggle" class="logout-btn theme-toggle" title="Toggle theme">🌙</button>
 
         <button class="logout-btn"
                 onclick="goHome()"
@@ -351,31 +331,23 @@
 
 
 
-                        <!-- DISPATCH -->
+                        <!-- SETTINGS -->
 
-                        <button
-                            type="button"
-                            class="transaction-type"
-                            data-type="dispatch">
+                        <div class="language-switcher">
 
-                            <span>📤</span>
-
-                            <span data-i18n="dispatch">
-                                Dispatch
+                            <span>
+                                Settings:
                             </span>
 
-                        </button>
+                            <select id="settingsSelect">
 
+                                <option value="branding">Branding</option>
 
+                                <option value="others">Others</option>
 
-                        <!-- RETURN -->
+                            </select>
 
-                        <button
-                            type="button"
-                            class="transaction-type"
-                            data-type="return">
-
-                            <span>↩️</span>
+                        </div>
 
                             <span data-i18n="return">
                                 Return
@@ -576,6 +548,7 @@
 
             </div>
 
+<script src="js/theme.js"></script>
 
 
             <div
