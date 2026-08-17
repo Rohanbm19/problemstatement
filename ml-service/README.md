@@ -4,7 +4,7 @@
 
 The ML service is a **separate forecasting microservice** for the TwinStock AI warehouse system.
 
-It receives historical demand data from the backend and returns real demand forecasts powered by **IBM Granite Time Series TTM R2.1**.
+It receives historical demand data from the backend and returns real demand forecasts powered by **IBM Granite Time Series TTM R2.1**
 
 It does **not** manage inventory, calculate stockout risk, or generate replenishment orders — those remain in the backend.
 
