@@ -1,1046 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>TwinStock AI - Manager</title>
-
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
-        <link rel="stylesheet"
-            href="css/style.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TwinStock AI - Manager Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-
-<!-- =====================================================
-     HEADER
-====================================================== -->
-
-<header class="topbar">
-
-    <div class="brand-small">
-
-        <span>📦</span>
-
-        <strong>
-            TwinStock AI
-        </strong>
-
-    </div>
-
-
-    <div class="header-right">
-
-        <nav class="settings-nav">
-
-            <div class="settings-item language-switcher">
-                <span class="sr-only">Language</span>
-                <select id="languageSelect">
-                    <option value="en">English</option>
-                    <option value="hi">हिन्दी</option>
-                    <option value="kn">ಕನ್ನಡ</option>
-                </select>
-            </div>
-
-            <div class="settings-item role-switcher">
-                <span class="sr-only">Role</span>
-                <select id="roleSelect" onchange="switchRole()">
-                    <option value="manager" data-i18n="manager_role">👨‍💼 Manager</option>
-                    <option value="worker" data-i18n="worker_role">👷 Worker</option>
-                </select>
-            </div>
-
-            <div class="settings-item">
-                <button id="themeToggle" class="theme-toggle" title="Toggle theme">🌙</button>
-            </div>
-
-            <div class="settings-item">
-                <button class="logout-btn" onclick="goHome()" data-i18n="logout">Logout</button>
-            </div>
-
-        </nav>
-
-    </div>
-
-</header>
-
-
-<!-- =====================================================
-     MAIN
-====================================================== -->
-
-<main class="dashboard">
-
-
-<!-- =====================================================
-     PAGE HEADING
-====================================================== -->
-
-<div class="page-heading">
-
-    <div>
-
-        <h1 data-i18n="manager_dashboard">
-            Manager Dashboard
-        </h1>
-
-        
-
-    </div>
-
-
-    <div class="status-badge"
-         data-i18n="system_live">
-
-        ● System Live
-
-    </div>
-
-</div>
-
-
-
-<!-- =====================================================
-     SUMMARY
-====================================================== -->
-
-<section class="summary-grid">
-
-
-    <div class="summary-card">
-
-        <div class="summary-icon blue">
-            📦
+    <!-- HEADER -->
+    <header class="topbar">
+        <div class="brand-small" onclick="goHome()" style="cursor: pointer;">
+            <span>📦</span>
+            <strong>TwinStock AI</strong>
         </div>
 
-        <div>
+        <div class="header-right">
+            <nav class="settings-nav">
+                <div class="settings-item language-switcher">
+                    <span class="sr-only">Language</span>
+                    <select id="languageSelect">
+                        <option value="en">English</option>
+                        <option value="hi">हिन्दी</option>
+                        <option value="kn">ಕನ್ನಡ</option>
+                    </select>
+                </div>
 
-            <p data-i18n="total_products">
-                    Total Products
-                </p>
+                <div class="settings-item role-switcher">
+                    <span class="sr-only">Role</span>
+                    <select id="roleSelect" onchange="switchRole()">
+                        <option value="manager" data-i18n="manager_role">👨‍💼 Manager</option>
+                        <option value="worker" data-i18n="worker_role">👷 Worker</option>
+                    </select>
+                </div>
 
-            <h2 id="totalProducts">
-                --
-            </h2>
+                <div class="settings-item">
+                    <button id="themeToggle" class="theme-toggle" title="Toggle theme">🌙</button>
+                </div>
 
+                <div class="settings-item">
+                    <button class="logout-btn" onclick="goHome()" data-i18n="logout">Logout</button>
+                </div>
+            </nav>
         </div>
+    </header>
 
-    </div>
-
-
-
-    <div class="summary-card">
-
-        <div class="summary-icon purple">
-            📊
-        </div>
-
-        <div>
-
-            <p data-i18n="total_inventory">
-                Total Inventory
-            </p>
-
-            <h2 id="totalInventory">
-                --
-            </h2>
-
-            <span data-i18n="units">
-                units
-            </span>
-
-        </div>
-
-    </div>
-
-
-
-    <div class="summary-card risk-card">
-
-        <div class="summary-icon red">
-            ⚠️
-        </div>
-
-        <div>
-
-            <p data-i18n="high_risk">
-                High Risk
-            </p>
-
-            <h2 id="highRisk">
-                --
-            </h2>
-
-            <span data-i18n="products">
-                products
-            </span>
-
-        </div>
-
-    </div>
-
-
-
-    <div class="summary-card overstock-card">
-
-        <div class="summary-icon orange">
-            📈
-        </div>
-
-        <div>
-
-            <p data-i18n="overstock">
-                Overstock
-            </p>
-
-            <h2 id="overstock">
-                --
-            </h2>
-
-            <span data-i18n="products">
-                products
-            </span>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     MANAGER GRID
-====================================================== -->
-
-<section class="manager-grid">
-
-
-<!-- =====================================================
-     AI SUGGESTIONS
-====================================================== -->
-
-<div class="panel suggestions-panel">
-
-
-    <div class="panel-header">
-
-        <div>
-
-            <h2 data-i18n="ai_suggestions">
-                🤖 AI Suggestions
-            </h2>
-
-            <p data-i18n="ai_suggestions_description">
-                AI-powered inventory recommendations
-            </p>
-
-        </div>
-
-
-        <span class="ai-status">
-            AI
-        </span>
-
-    </div>
-
-
-
-<!-- =====================================================
-     LAPTOP
-====================================================== -->
-
-<div class="suggestion-card high">
-
-
-    <div class="suggestion-top">
-
-        <div class="product-info">
-
-            <span class="risk-dot red-dot"></span>
-
+    <!-- MAIN DASHBOARD -->
+    <main class="dashboard">
+        <!-- PAGE HEADING -->
+        <div class="page-heading">
             <div>
+                <h1 data-i18n="manager_dashboard">Manager Dashboard</h1>
+                <p data-i18n="manager_description" style="color: var(--muted); margin-top: 4px;">Monitor inventory, AI predictions and replenishment recommendations.</p>
+            </div>
+            <div class="status-badge" data-i18n="system_live">● System Live</div>
+        </div>
 
-                <h3>
-                    Laptop
-                </h3>
-
-                <span>
-                    Product ID: ITM10025
-                </span>
-
+        <!-- SUMMARY CARDS -->
+        <section class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-icon blue">📦</div>
+                <div>
+                    <p data-i18n="total_products">Total Products</p>
+                    <h2 id="totalProducts">--</h2>
+                </div>
             </div>
 
-        </div>
-
-
-        <span class="risk-label high-label"
-              data-i18n="high_risk_label">
-
-            HIGH RISK
-
-        </span>
-
-    </div>
-
-
-
-    <p class="suggestion-message"
-       data-i18n="stockout_prediction">
-
-        Stockout predicted based on current demand.
-
-    </p>
-
-
-
-    <div class="suggestion-details">
-
-
-        <div>
-
-            <span data-i18n="current_stock">Current Stock</span>
-
-            <span class="stat-pill" title="Current stock">120 units</span>
-
-        </div>
-
-
-        <div>
-
-            <span data-i18n="predicted_demand">
-                Predicted Demand
-            </span>
-
-            <strong>
-                50/day
-            </strong>
-
-        </div>
-
-
-        <div>
-
-            <span data-i18n="recommended">
-                Recommended
-            </span>
-
-            <strong>
-                200 units
-            </strong>
-
-        </div>
-
-    </div>
-
-
-
-    <button class="primary-btn"
-            onclick="openRecommendation('Laptop')"
-            data-i18n="view_recommendation">
-
-        View Recommendation →
-
-    </button>
-
-</div>
-
-
-
-<!-- =====================================================
-     KEYBOARD
-====================================================== -->
-
-<div class="suggestion-card medium">
-
-
-    <div class="suggestion-top">
-
-        <div class="product-info">
-
-            <span class="risk-dot orange-dot"></span>
-
-            <div>
-
-                <h3>
-                    Keyboard
-                </h3>
-
-                <span>
-                    Product ID: ITM10014
-                </span>
-
+            <div class="summary-card">
+                <div class="summary-icon purple">📊</div>
+                <div>
+                    <p data-i18n="total_inventory">Total Inventory</p>
+                    <h2 id="totalInventory">--</h2>
+                    <span data-i18n="units">units</span>
+                </div>
             </div>
 
-        </div>
-
-
-        <span class="risk-label medium-label"
-              data-i18n="medium_risk">
-
-            MEDIUM RISK
-
-        </span>
-
-    </div>
-
-
-
-    <p class="suggestion-message"
-       data-i18n="demand_increasing">
-
-        Demand is increasing.
-
-    </p>
-
-
-
-    <div class="suggestion-details">
-
-
-        <div>
-
-            <span data-i18n="current_stock">Current Stock</span>
-
-            <span class="stat-pill" title="Current stock">180 units</span>
-
-        </div>
-
-
-        <div>
-
-            <span data-i18n="predicted_demand">
-                Predicted Demand
-            </span>
-
-            <strong>
-                35/day
-            </strong>
-
-        </div>
-
-
-        <div>
-
-            <span data-i18n="recommended">
-                Recommended
-            </span>
-
-            <strong>
-                150 units
-            </strong>
-
-        </div>
-
-    </div>
-
-
-
-    <button class="secondary-btn"
-            onclick="openRecommendation('Keyboard')"
-            data-i18n="view_recommendation">
-
-        View Recommendation →
-
-    </button>
-
-</div>
-
-
-
-<!-- =====================================================
-     MONITOR
-====================================================== -->
-
-<div class="suggestion-card warning">
-
-
-    <div class="suggestion-top">
-
-        <div class="product-info">
-
-            <span class="risk-dot yellow-dot"></span>
-
-            <div>
-
-                <h3>
-                    Monitor
-                </h3>
-
-                <span>
-                    Product ID: ITM10021
-                </span>
-
+            <div class="summary-card risk-card">
+                <div class="summary-icon red">⚠️</div>
+                <div>
+                    <p data-i18n="high_risk">High Risk</p>
+                    <h2 id="highRisk">--</h2>
+                    <span data-i18n="products">products</span>
+                </div>
             </div>
 
-        </div>
+            <div class="summary-card overstock-card">
+                <div class="summary-icon orange">📈</div>
+                <div>
+                    <p data-i18n="overstock">Overstock</p>
+                    <h2 id="overstock">--</h2>
+                    <span data-i18n="products">products</span>
+                </div>
+            </div>
+        </section>
 
+        <!-- MANAGER GRID -->
+        <section class="manager-grid">
+            <!-- AI SUGGESTIONS -->
+            <div class="panel suggestions-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2 data-i18n="ai_suggestions">🤖 AI Suggestions</h2>
+                        <p data-i18n="ai_suggestions_description">AI-powered inventory recommendations</p>
+                    </div>
+                    <span class="ai-status">AI</span>
+                </div>
 
-        <span class="risk-label warning-label"
-              data-i18n="overstock_label">
+                <div class="suggestion-card high">
+                    <div class="suggestion-top">
+                        <div class="product-info">
+                            <span class="risk-dot red-dot"></span>
+                            <div>
+                                <h3>Laptop</h3>
+                                <span>Product ID: ITM10025</span>
+                            </div>
+                        </div>
+                        <span class="risk-label high-label" data-i18n="high_risk_label">HIGH RISK</span>
+                    </div>
+                    <p class="suggestion-message" data-i18n="stockout_prediction">Stockout predicted based on current demand.</p>
+                    <div class="suggestion-details">
+                        <div><span data-i18n="current_stock">Current Stock</span><span class="stat-pill" title="Current stock">120 units</span></div>
+                        <div><span data-i18n="predicted_demand">Predicted Demand</span><strong>50/day</strong></div>
+                        <div><span data-i18n="recommended">Recommended</span><strong>200 units</strong></div>
+                    </div>
+                    <button class="primary-btn" onclick="openRecommendation('Laptop')" data-i18n="view_recommendation">View Recommendation →</button>
+                </div>
 
-            OVERSTOCK
+                <div class="suggestion-card medium">
+                    <div class="suggestion-top">
+                        <div class="product-info">
+                            <span class="risk-dot orange-dot"></span>
+                            <div>
+                                <h3>Keyboard</h3>
+                                <span>Product ID: ITM10014</span>
+                            </div>
+                        </div>
+                        <span class="risk-label medium-label" data-i18n="medium_risk">MEDIUM RISK</span>
+                    </div>
+                    <p class="suggestion-message" data-i18n="demand_increasing">Demand is increasing.</p>
+                    <div class="suggestion-details">
+                        <div><span data-i18n="current_stock">Current Stock</span><span class="stat-pill" title="Current stock">180 units</span></div>
+                        <div><span data-i18n="predicted_demand">Predicted Demand</span><strong>35/day</strong></div>
+                        <div><span data-i18n="recommended">Recommended</span><strong>150 units</strong></div>
+                    </div>
+                    <button class="secondary-btn" onclick="openRecommendation('Keyboard')" data-i18n="view_recommendation">View Recommendation →</button>
+                </div>
 
-        </span>
-
-    </div>
-
-
-
-    <p class="suggestion-message"
-       data-i18n="overstock_message">
-
-        Current inventory may cover expected demand.
-
-    </p>
-
-
-
-    <div class="suggestion-details">
-
-
-        <div>
-
-            <span data-i18n="current_stock">
-                Current Stock
-            </span>
-
-            <strong>
-                2,000 units
-            </strong>
-
-        </div>
-
-
-        <div>
-
-            <span data-i18n="daily_demand">
-                Daily Demand
-            </span>
-
-            <strong>
-                20/day
-            </strong>
-
-        </div>
-
-
-        <div>
-
-            <span data-i18n="status">
-                Status
-            </span>
-
-            <strong data-i18n="review">
-                Review
-            </strong>
-
-        </div>
-
-    </div>
-
-
-
-    <button class="secondary-btn"
-            onclick="openRecommendation('Monitor')"
-            data-i18n="view_details">
-
-        View Details →
-
-    </button>
-
-</div>
-
-</div>
-
-
-
-<!-- =====================================================
-     INVENTORY OVERVIEW
-====================================================== -->
-
-<div class="panel">
-
-
-    <div class="panel-header">
-
-        <div>
-
-            <h2 data-i18n="inventory_overview">
-                📋 Inventory Overview
-            </h2>
-
-            <p data-i18n="latest_activity">
-                Latest warehouse activity
-            </p>
-
-        </div>
-
-
-        <span class="count-badge"
-              data-i18n="today">
-
-            Today
-
-        </span>
-
-    </div>
-
-
-
-    <div class="transaction-list">
-
-
-        <div class="transaction-item">
-
-            <div>
-
-                <strong>
-                    ITM10025
-                </strong>
-
-                <span>
-                    Laptop
-                </span>
-
+                <div class="suggestion-card warning">
+                    <div class="suggestion-top">
+                        <div class="product-info">
+                            <span class="risk-dot yellow-dot"></span>
+                            <div>
+                                <h3>Monitor</h3>
+                                <span>Product ID: ITM10021</span>
+                            </div>
+                        </div>
+                        <span class="risk-label warning-label" data-i18n="overstock_label">OVERSTOCK</span>
+                    </div>
+                    <p class="suggestion-message" data-i18n="overstock_message">Current inventory may cover expected demand.</p>
+                    <div class="suggestion-details">
+                        <div><span data-i18n="current_stock">Current Stock</span><strong>2,000 units</strong></div>
+                        <div><span data-i18n="daily_demand">Daily Demand</span><strong>20/day</strong></div>
+                        <div><span data-i18n="status">Status</span><strong data-i18n="review">Review</strong></div>
+                    </div>
+                    <button class="secondary-btn" onclick="openRecommendation('Monitor')" data-i18n="view_details">View Details →</button>
+                </div>
             </div>
 
+            <!-- INVENTORY TABLE OVERVIEW -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h2 data-i18n="inventory_overview">📋 Inventory Overview</h2>
+                        <p data-i18n="latest_activity">Real-time product stock & AI risk levels</p>
+                    </div>
+                    <span class="count-badge" data-i18n="today">Live</span>
+                </div>
 
-            <div>
-
-                <strong>
-                    120 units
-                </strong>
-
-                <span data-i18n="high_risk">
-                    High Risk
-                </span>
-
+                <div class="table-responsive">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Stock Level</th>
+                                <th>Predicted Demand</th>
+                                <th>Risk Status</th>
+                                <th>Location</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align:center;">Loading inventory data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-        </div>
+            <!-- IBM BOB CHATBOT -->
+            <div class="panel chatbot-panel">
+                <div class="chat-header">
+                    <div class="bob-avatar">🤖</div>
+                    <div>
+                        <h2>IBM Bob</h2>
+                        <span data-i18n="ai_warehouse_assistant">AI Warehouse Assistant</span>
+                    </div>
+                    <div class="online-dot"></div>
+                </div>
 
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot-message">
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-content">
+                            <span class="message-name">IBM Bob</span>
+                            <p data-i18n="bob_greeting">Hello! I'm your warehouse AI assistant. I can help you understand inventory risks, predictions and replenishment recommendations.</p>
+                        </div>
+                    </div>
 
+                    <div class="quick-questions">
+                        <button onclick="askQuestion('Which products should I reorder?')" data-i18n="reorder_question">Which products should I reorder?</button>
+                        <button onclick="askQuestion('Why is Laptop high risk?')" data-i18n="laptop_question">Why is Laptop high risk?</button>
+                    </div>
+                </div>
 
-        <div class="transaction-item">
-
-            <div>
-
-                <strong>
-                    ITM10014
-                </strong>
-
-                <span>
-                    Keyboard
-                </span>
-
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" data-i18n-placeholder="chat_placeholder" placeholder="Ask IBM Bob about your inventory..." onkeypress="handleChatKey(event)">
+                    <button onclick="sendMessage()" title="Send">➤</button>
+                </div>
             </div>
 
+            <!-- DEMAND FORECASTING -->
+            <div class="panel forecast-panel">
+                <div class="panel-header">
+                    <div>
+                        <h2 data-i18n="demand_forecasting">🔮 Demand Forecasting</h2>
+                        <p data-i18n="forecast_description">Predict future demand using TwinStock AI.</p>
+                    </div>
+                    <span class="count-badge" data-i18n="ai_forecast">AI Forecast</span>
+                </div>
 
-            <div>
+                <div class="forecast-form">
+                    <div class="form-group">
+                        <label for="forecastItemId" data-i18n="product_item_id">Product / Item ID</label>
+                        <input type="text" id="forecastItemId" data-i18n-placeholder="forecast_item_placeholder" placeholder="Example: ITM10025">
+                    </div>
 
-                <strong>
-                    180 units
-                </strong>
+                    <div class="form-group">
+                        <label for="forecastHorizon" data-i18n="forecast_horizon">Forecast Horizon</label>
+                        <select id="forecastHorizon">
+                            <option value="7" data-i18n="next_7_days">Next 7 Days</option>
+                            <option value="14" data-i18n="next_14_days">Next 14 Days</option>
+                            <option value="30" data-i18n="next_30_days">Next 30 Days</option>
+                        </select>
+                    </div>
 
-                <span data-i18n="medium_risk">
-                    Medium Risk
-                </span>
+                    <button type="button" class="primary-btn" onclick="generateForecast()" data-i18n="generate_forecast">🔮 Generate Forecast</button>
+                </div>
 
+                <div id="forecastLoading" style="display:none;" data-i18n="generating_forecast">⏳ Generating forecast...</div>
+                <div id="forecastError" class="error-message" style="display:none;"></div>
+
+                <div id="forecastResult" class="forecast-result" style="display:none;">
+                    <div class="forecast-summary">
+                        <div class="forecast-stat"><span data-i18n="product">Product</span><strong id="forecastProduct">-</strong></div>
+                        <div class="forecast-stat"><span data-i18n="model">Model</span><strong id="forecastModel">-</strong></div>
+                        <div class="forecast-stat"><span data-i18n="forecast_days">Forecast Days</span><strong id="forecastDays">-</strong></div>
+                        <div class="forecast-stat"><span data-i18n="total_expected_demand">Total Expected Demand</span><strong id="forecastTotal">-</strong></div>
+                    </div>
+
+                    <div class="forecast-table-container">
+                        <table class="forecast-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="date">Date</th>
+                                    <th data-i18n="predicted_demand">Predicted Demand</th>
+                                </tr>
+                            </thead>
+                            <tbody id="forecastTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-
-        </div>
-
-
-
-        <div class="transaction-item">
-
-            <div>
-
-                <strong>
-                    ITM10021
-                </strong>
-
-                <span>
-                    Monitor
-                </span>
-
-            </div>
-
-
-            <div>
-
-                <strong>
-                    2,000 units
-                </strong>
-
-                <span data-i18n="overstock">
-                    Overstock
-                </span>
-
-            </div>
-
-        </div>
-
-
-    </div>
-
-</div>
-
-
-
-<!-- =====================================================
-     IBM BOB
-====================================================== -->
-
-<div class="panel chatbot-panel">
-
-
-    <div class="chat-header">
-
-        <div class="bob-avatar">
-            🤖
-        </div>
-
-
-        <div>
-
-            <h2>
-                IBM Bob
-            </h2>
-
-            <span data-i18n="ai_warehouse_assistant">
-                AI Warehouse Assistant
-            </span>
-
-        </div>
-
-
-        <div class="online-dot"></div>
-
-    </div>
-
-
-
-    <div class="chat-messages"
-         id="chatMessages">
-
-
-        <div class="message bot-message">
-
-
-            <div class="message-avatar">
-                🤖
-            </div>
-
-
-            <div class="message-content">
-
-                <span class="message-name">
-                    IBM Bob
-                </span>
-
-
-                <p data-i18n="bob_greeting">
-
-                    Hello! I'm your warehouse AI assistant.
-                    I can help you understand inventory risks,
-                    predictions and replenishment recommendations.
-
-                </p>
-
-            </div>
-
-        </div>
-
-
-
-        <div class="quick-questions">
-
-
-            <button
-                onclick="askQuestion('Which products should I reorder?')"
-                data-i18n="reorder_question">
-
-                Which products should I reorder?
-
-            </button>
-
-
-            <button
-                onclick="askQuestion('Why is Laptop high risk?')"
-                data-i18n="laptop_question">
-
-                Why is Laptop high risk?
-
-            </button>
-
-        </div>
-
-    </div>
-
-
-
-    <div class="chat-input-area">
-
-
-        <input
-            type="text"
-            id="chatInput"
-            data-i18n-placeholder="chat_placeholder"
-            placeholder="Ask IBM Bob about your inventory..."
-            onkeypress="handleChatKey(event)"
-        >
-
-
-        <button onclick="sendMessage()">
-            ➤
-        </button>
-
-    </div>
-
-</div>
-
-
-
-<!-- =====================================================
-     DEMAND FORECASTING
-====================================================== -->
-
-<div class="panel forecast-panel">
-
-
-    <div class="panel-header">
-
-        <div>
-
-            <h2 data-i18n="demand_forecasting">
-                🔮 Demand Forecasting
-            </h2>
-
-            <p data-i18n="forecast_description">
-                Predict future demand using TwinStock AI.
-            </p>
-
-        </div>
-
-
-        <span class="count-badge"
-              data-i18n="ai_forecast">
-
-            AI Forecast
-
-        </span>
-
-    </div>
-
-
-
-    <div class="forecast-form">
-
-
-        <div class="form-group">
-
-            <label for="forecastItemId"
-                   data-i18n="product_item_id">
-
-                Product / Item ID
-
-            </label>
-
-
-            <input
-                type="text"
-                id="forecastItemId"
-                data-i18n-placeholder="forecast_item_placeholder"
-                placeholder="Example: ITM10025"
-            >
-
-        </div>
-
-
-
-        <div class="form-group">
-
-            <label for="forecastHorizon"
-                   data-i18n="forecast_horizon">
-
-                Forecast Horizon
-
-            </label>
-
-
-            <select id="forecastHorizon">
-
-                <option value="7"
-                        data-i18n="next_7_days">
-                    Next 7 Days
-                </option>
-
-                <option value="14"
-                        data-i18n="next_14_days">
-                    Next 14 Days
-                </option>
-
-                <option value="30"
-                        data-i18n="next_30_days">
-                    Next 30 Days
-                </option>
-
-            </select>
-
-        </div>
-
-
-
-        <button
-            type="button"
-            class="primary-btn"
-            onclick="generateForecast()"
-            data-i18n="generate_forecast">
-
-            🔮 Generate Forecast
-
-        </button>
-
-    </div>
-
-
-
-    <div id="forecastLoading"
-         style="display:none;"
-         data-i18n="generating_forecast">
-
-        ⏳ Generating forecast...
-
-    </div>
-
-
-
-    <div id="forecastError"
-         class="error-message"
-         style="display:none;">
-    </div>
-
-
-
-    <div id="forecastResult"
-         class="forecast-result"
-         style="display:none;">
-
-
-        <div class="forecast-summary">
-
-
-            <div class="forecast-stat">
-
-                <span data-i18n="product">
-                    Product
-                </span>
-
-                <strong id="forecastProduct">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="forecast-stat">
-
-                <span data-i18n="model">
-                    Model
-                </span>
-
-                <strong id="forecastModel">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="forecast-stat">
-
-                <span data-i18n="forecast_days">
-                    Forecast Days
-                </span>
-
-                <strong id="forecastDays">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="forecast-stat">
-
-                <span data-i18n="total_expected_demand">
-                    Total Expected Demand
-                </span>
-
-                <strong id="forecastTotal">
-                    -
-                </strong>
-
-            </div>
-
-        </div>
-
-
-
-        <div class="forecast-table-container">
-
-            <table class="forecast-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th data-i18n="date">
-                            Date
-                        </th>
-
-                        <th data-i18n="predicted_demand">
-                            Predicted Demand
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody id="forecastTableBody">
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-</section>
-
-</main>
-
-
-<!-- =====================================================
-     JAVASCRIPT
-====================================================== -->
-<script src="js/language.js"></script>
-<script src="js/theme.js"></script>
-<script src="js/manager.js"></script>
-
+        </section>
+    </main>
+
+    <!-- SCRIPTS -->
+    <script src="js/theme.js"></script>
+    <script src="js/language.js"></script>
+    <script src="js/manager.js"></script>
 </body>
-
 </html>

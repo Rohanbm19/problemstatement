@@ -1,788 +1,174 @@
+// =====================================================
+// TwinStock AI - Worker Dashboard Module
+// =====================================================
+
+const API_URL = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "/api";
 let transactionType = "receive";
 
-const API_URL = "http://127.0.0.1:8000";
-
-
-/* =========================================================
-   ROLE SWITCH
-========================================================= */
-
 function switchRole() {
-
-    const role =
-        document.getElementById("roleSelect").value;
-
-    if (role === "manager") {
-
+    const roleSelect = document.getElementById("roleSelect");
+    if (roleSelect && roleSelect.value === "manager") {
         window.location.href = "manager.html";
-
     }
-
 }
-
-
-/* =========================================================
-   HOME
-========================================================= */
 
 function goHome() {
-
     window.location.href = "index.html";
-
 }
 
-
-/* =========================================================
-   TRANSACTION TYPE
-========================================================= */
-
-const transactionButtons =
-    document.querySelectorAll(".transaction-type");
-
-
-transactionButtons.forEach(function (button) {
-
-    button.addEventListener("click", function () {
-
-        transactionButtons.forEach(function (btn) {
-
-            btn.classList.remove("active");
-
+document.addEventListener("DOMContentLoaded", () => {
+    // Setup transaction type selector buttons
+    const transactionButtons = document.querySelectorAll(".transaction-type");
+    transactionButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            transactionButtons.forEach(btn => btn.classList.remove("active"));
+            this.classList.add("active");
+            transactionType = this.dataset.type || "receive";
         });
-
-
-        this.classList.add("active");
-
-
-        transactionType =
-            this.dataset.type;
-
-
-        console.log(
-            "Transaction type:",
-            transactionType
-        );
-
     });
 
-});
-
-
-/* =========================================================
-   SUBMIT TRANSACTION
-========================================================= */
-
-const transactionForm =
-    document.getElementById("transactionForm");
-
-
-if (transactionForm) {
-
-    transactionForm.addEventListener(
-        "submit",
-        async function (event) {
-
+    // Form submission
+    const transactionForm = document.getElementById("transactionForm");
+    if (transactionForm) {
+        transactionForm.addEventListener("submit", async (event) => {
             event.preventDefault();
 
+            const productElement = document.getElementById("product");
+            const quantityElement = document.getElementById("quantity");
+            const locationElement = document.getElementById("location");
+            const notesElement = document.getElementById("notes");
 
-            /* =================================================
-               GET FORM VALUES
-            ================================================= */
-
-            const productElement =
-                document.getElementById("product");
-
-
-            const quantityElement =
-                document.getElementById("quantity");
-
-
-            const locationElement =
-                document.getElementById("location");
-
-
-            const notesElement =
-                document.getElementById("notes");
-
-
-            /* =================================================
-               CHECK ELEMENTS
-            ================================================= */
-
-            if (!productElement) {
-
-                console.error(
-                    "Product input with id='product' not found."
-                );
-
-                alert(
-                    "Product input not found. Check worker.html."
-                );
-
+            if (!productElement || !quantityElement) {
+                alert("Form elements missing.");
                 return;
-
             }
 
-
-            if (!quantityElement) {
-
-                console.error(
-                    "Quantity input not found."
-                );
-
-                return;
-
-            }
-
-
-            /* =================================================
-               READ VALUES
-            ================================================= */
-
-            const product =
-                productElement.value.trim();
-
-
-            const quantity =
-                Number(quantityElement.value);
-
-
-            const location =
-                locationElement
-                    ? locationElement.value
-                    : null;
-
-
-            const notes =
-                notesElement
-                    ? notesElement.value.trim()
-                    : null;
-
-
-            /* =================================================
-               VALIDATION
-            ================================================= */
+            const product = productElement.value.trim();
+            const quantity = Number(quantityElement.value);
+            const location = locationElement ? locationElement.value : null;
+            const notes = notesElement ? notesElement.value.trim() : null;
 
             if (!product) {
-
-                alert(
-                    "Please enter the Product ID."
-                );
-
+                alert("Please enter the Product ID.");
                 return;
-
             }
-
 
             if (!quantity || quantity <= 0) {
-
-                alert(
-                    "Please enter a valid quantity."
-                );
-
+                alert("Please enter a valid quantity greater than 0.");
                 return;
-
             }
 
-
-            /* =================================================
-               DISABLE BUTTON
-            ================================================= */
-
-            const submitButton =
-                transactionForm.querySelector(
-                    'button[type="submit"]'
-                );
-
-
+            const submitButton = transactionForm.querySelector('button[type="submit"]');
             if (submitButton) {
-
                 submitButton.disabled = true;
-
-                submitButton.innerText =
-                    "Saving...";
-
+                submitButton.textContent = "Saving...";
             }
-
-
-            /* =================================================
-               SEND TO FASTAPI
-            ================================================= */
 
             try {
-
-                console.log(
-                    "Sending transaction to backend..."
-                );
-
-
-                console.log({
-
-                    item_id: product,
-
-                    transaction_type:
-                        transactionType,
-
-                    quantity: quantity,
-
-                    location: location,
-
-                    notes: notes
-
+                const response = await fetch(`${API_URL}/transactions/`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        item_id: product,
+                        transaction_type: transactionType,
+                        quantity: quantity,
+                        location: location,
+                        notes: notes
+                    })
                 });
 
-
-                const response =
-                    await fetch(
-                        `${API_URL}/transactions/`,
-                        {
-
-                            method: "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json"
-
-                            },
-
-                            body: JSON.stringify({
-
-                                item_id:
-                                    product,
-
-                                transaction_type:
-                                    transactionType,
-
-                                quantity:
-                                    quantity,
-
-                                location:
-                                    location,
-
-                                notes:
-                                    notes
-
-                            })
-
-                        }
-                    );
-
-
-                /* =================================================
-                   READ RESPONSE
-                ================================================= */
-
-                const result =
-                    await response.json();
-
-
-                console.log(
-                    "Backend response:",
-                    result
-                );
-
-
-                /* =================================================
-                   BACKEND ERROR
-                ================================================= */
+                const result = await response.json();
 
                 if (!response.ok) {
-
-                    alert(
-                        result.detail ||
-                        "Transaction failed."
-                    );
-
+                    alert(result.detail || "Transaction failed.");
                     return;
-
                 }
 
+                const newStock = result.inventory ? result.inventory.stock_level : "N/A";
+                addTransactionToUI(product, transactionType, quantity, location);
 
-                /* =================================================
-                   GET UPDATED STOCK
-                ================================================= */
-
-                const newStock =
-                    result.inventory.stock_level;
-
-
-                /* =================================================
-                   ADD TRANSACTION TO UI
-                ================================================= */
-
-                addTransactionToUI(
-                    product,
-                    transactionType,
-                    quantity,
-                    location
-                );
-
-
-                /* =================================================
-                   SHOW SUCCESS
-                ================================================= */
-
-                const success =
-                    document.getElementById(
-                        "successMessage"
-                    );
-
-
+                const success = document.getElementById("successMessage");
                 if (success) {
-
-                    success.innerHTML =
-                        `✓ Transaction recorded successfully! ` +
-                        `Updated stock: ${newStock}`;
-
-                    success.style.display =
-                        "block";
-
-
-                    setTimeout(function () {
-
-                        success.style.display =
-                            "none";
-
-                    }, 5000);
-
+                    success.innerHTML = `✓ Transaction recorded successfully! Updated stock: <strong>${newStock}</strong>`;
+                    success.style.display = "block";
+                    setTimeout(() => { success.style.display = "none"; }, 5000);
                 }
-
-
-                /* =================================================
-                   SHOW UPDATED STOCK
-                ================================================= */
-
-                alert(
-                    "Transaction successful!\n\n" +
-                    "Product: " + product + "\n" +
-                    "Transaction: " + transactionType + "\n" +
-                    "Quantity: " + quantity + "\n\n" +
-                    "Updated stock: " + newStock
-                );
-
-
-                /* =================================================
-                   RESET FORM
-                ================================================= */
 
                 transactionForm.reset();
-
-
-                /* =================================================
-                   RESET TRANSACTION TYPE
-                ================================================= */
-
                 transactionType = "receive";
+                transactionButtons.forEach(btn => btn.classList.remove("active"));
+                const receiveBtn = document.querySelector('.transaction-type[data-type="receive"]');
+                if (receiveBtn) receiveBtn.classList.add("active");
 
-
-                transactionButtons.forEach(
-                    function (btn) {
-
-                        btn.classList.remove(
-                            "active"
-                        );
-
-                    }
-                );
-
-
-                const receiveButton =
-                    document.querySelector(
-                        '.transaction-type[data-type="receive"]'
-                    );
-
-
-                if (receiveButton) {
-
-                    receiveButton.classList.add(
-                        "active"
-                    );
-
-                }
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Backend connection error:",
-                    error
-                );
-
-
-                alert(
-                    "Cannot connect to backend.\n\n" +
-                    "Make sure FastAPI is running at:\n" +
-                    API_URL
-                );
-
-            }
-
-            finally {
-
+            } catch (error) {
+                console.error("Backend connection error:", error);
+                alert(`Cannot connect to backend server at ${API_URL}`);
+            } finally {
                 if (submitButton) {
-
-                    submitButton.disabled =
-                        false;
-
-                    submitButton.innerText =
-                        "Submit Transaction";
-
+                    submitButton.disabled = false;
+                    submitButton.textContent = "Submit Transaction";
                 }
-
             }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   ADD TRANSACTION TO UI
-========================================================= */
-
-function addTransactionToUI(
-    product,
-    type,
-    quantity,
-    location
-) {
-
-    const list =
-        document.getElementById(
-            "transactionList"
-        );
-
-
-    if (!list) {
-
-        return;
-
+        });
     }
 
+    loadWorkerProducts();
+});
+
+function addTransactionToUI(product, type, quantity, location) {
+    const list = document.getElementById("transactionList");
+    if (!list) return;
 
     let icon = "📥";
-
     let cssClass = "receive";
-
     let sign = "+";
 
-
     if (type === "dispatch") {
-
         icon = "📤";
-
         cssClass = "dispatch";
-
         sign = "-";
-
-    }
-
-
-    if (type === "damaged") {
-
+    } else if (type === "damaged") {
         icon = "⚠️";
-
         cssClass = "damaged";
-
         sign = "-";
-
-    }
-
-
-    if (type === "return") {
-
+    } else if (type === "return") {
         icon = "↩️";
-
         cssClass = "receive";
-
         sign = "+";
-
     }
 
-
-    const item =
-        document.createElement("div");
-
-
-    item.className =
-        "transaction-item";
-
-
+    const item = document.createElement("div");
+    item.className = "transaction-item";
     item.innerHTML = `
-
-        <div class="transaction-icon ${cssClass}">
-            ${icon}
-        </div>
-
+        <div class="transaction-icon ${cssClass}">${icon}</div>
         <div class="transaction-info">
-
-            <strong>
-                ${product}
-            </strong>
-
-            <span>
-                ${type}
-                • Just now
-                • ${location || "N/A"}
-            </span>
-
+            <strong>${product}</strong>
+            <span>${type} • Just now • ${location || "N/A"}</span>
         </div>
-
-        <strong class="${
-            sign === "+"
-                ? "positive"
-                : "negative"
-        }">
-
-            ${sign}${quantity}
-
-        </strong>
-
+        <strong class="${sign === '+' ? 'positive' : 'negative'}">${sign}${quantity}</strong>
     `;
 
-
     list.prepend(item);
-
 }
-/* =========================================================
-   TWINSTOCK AI - MANAGER FORECASTING
-========================================================= */
 
-const BACKEND_URL = "http://127.0.0.1:8000";
-
-
-/* =========================================================
-   GENERATE FORECAST
-========================================================= */
-
-async function generateForecast() {
-
-    const itemId =
-        document
-            .getElementById("forecastItemId")
-            .value
-            .trim();
-
-    const horizon =
-        Number(
-            document
-                .getElementById("forecastHorizon")
-                .value
-        );
-
-
-    /* -----------------------------------------------------
-       VALIDATION
-    ----------------------------------------------------- */
-
-    if (!itemId) {
-
-        alert("Please enter an Item ID.");
-
-        return;
-    }
-
-
-    /* -----------------------------------------------------
-       UI ELEMENTS
-    ----------------------------------------------------- */
-
-    const loading =
-        document.getElementById(
-            "forecastLoading"
-        );
-
-    const result =
-        document.getElementById(
-            "forecastResult"
-        );
-
-    const error =
-        document.getElementById(
-            "forecastError"
-        );
-
-
-    loading.style.display = "block";
-
-    result.style.display = "none";
-
-    error.style.display = "none";
-
+async function loadWorkerProducts() {
+    const tableBody = document.getElementById("workerProductsTable");
+    if (!tableBody) return;
 
     try {
+        const response = await fetch(`${API_URL}/inventory/`);
+        if (!response.ok) return;
+        const products = await response.json();
 
-        /* -------------------------------------------------
-           CALL BACKEND
-        ------------------------------------------------- */
-
-        const response = await fetch(
-
-            `${BACKEND_URL}/forecast/${itemId}?horizon=${horizon}`,
-
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            }
-
-        );
-
-
-        const data =
-            await response.json();
-
-
-        /* -------------------------------------------------
-           BACKEND ERROR
-        ------------------------------------------------- */
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.detail ||
-                "Forecast generation failed."
-            );
-
-        }
-
-
-        console.log(
-            "Forecast response:",
-            data
-        );
-
-
-        /* -------------------------------------------------
-           DISPLAY SUMMARY
-        ------------------------------------------------- */
-
-        document.getElementById(
-            "forecastProduct"
-        ).textContent =
-            data.item_id;
-
-
-        document.getElementById(
-            "forecastModel"
-        ).textContent =
-            data.model;
-
-
-        document.getElementById(
-            "forecastDays"
-        ).textContent =
-            data.horizon;
-
-
-        /* -------------------------------------------------
-           CALCULATE TOTAL DEMAND
-        ------------------------------------------------- */
-
-        const forecast =
-            data.forecast || [];
-
-
-        const totalDemand =
-            forecast.reduce(
-                function(total, point) {
-
-                    return total +
-                        Number(
-                            point.predicted_demand
-                        );
-
-                },
-                0
-            );
-
-
-        document.getElementById(
-            "forecastTotal"
-        ).textContent =
-            totalDemand.toFixed(2) +
-            " units";
-
-
-        /* -------------------------------------------------
-           BUILD FORECAST TABLE
-        ------------------------------------------------- */
-
-        const tableBody =
-            document.getElementById(
-                "forecastTableBody"
-            );
-
-
-        tableBody.innerHTML = "";
-
-
-        forecast.forEach(
-            function(point) {
-
-                const row =
-                    document.createElement("tr");
-
-
-                row.innerHTML = `
-
-                    <td>
-                        ${point.date}
-                    </td>
-
-                    <td>
-                        ${Number(
-                            point.predicted_demand
-                        ).toFixed(2)}
-                        units
-                    </td>
-
-                `;
-
-
-                tableBody.appendChild(row);
-
-            }
-        );
-
-
-        /* -------------------------------------------------
-           SHOW RESULT
-        ------------------------------------------------- */
-
-        result.style.display = "block";
-
-
+        tableBody.innerHTML = products.map(item => `
+            <tr>
+                <td><strong>${item.item_id}</strong></td>
+                <td>${item.stock_level}</td>
+                <td><span class="badge ${item.stock_level < 20 ? 'badge-danger' : 'badge-success'}">${item.stock_level < 20 ? 'Low Stock' : 'In Stock'}</span></td>
+                <td>${item.location || 'Warehouse A'}</td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        console.warn("Could not load worker product list:", e);
     }
-
-    catch (err) {
-
-        console.error(
-            "Forecast error:",
-            err
-        );
-
-
-        error.textContent =
-            "Unable to generate forecast: " +
-            err.message;
-
-
-        error.style.display =
-            "block";
-
-    }
-
-    finally {
-
-        loading.style.display =
-            "none";
-
-    }
-
 }

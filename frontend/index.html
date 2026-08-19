@@ -1,152 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>TwinStock AI</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TwinStock AI - Landing</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="css/style.css">
-
 </head>
-
-
-<body>
-
-
-    <!-- removed language switcher from landing page -->
-
+<body class="landing">
     <button id="themeToggle" class="theme-toggle floating" title="Toggle theme">🌙</button>
 
-
-
-    <!-- MAIN CENTER CONTENT -->
-
     <div class="landing-container">
-
-
-        <!-- BRAND -->
-
         <div class="brand">
-
-            <h1>
-                TwinStock AI
-            </h1>
-
+            <h1>TwinStock AI</h1>
+            <p class="role-subtitle" style="margin-top: 6px;">Intelligent Inventory & Stock Management System</p>
         </div>
-
-
-
-        <!-- ROLE CARD -->
 
         <div class="role-card">
-
-
-            <h2 data-i18n="select_role">
-
-                Select Your Role
-
-            </h2>
-
-
-            <p
-                class="role-subtitle"
-                data-i18n="role_subtitle">
-
-                Choose how you want to access
-                TwinStock AI
-
-            </p>
-
-
+            <h2 data-i18n="select_role">Select Your Role</h2>
+            <p class="role-subtitle" data-i18n="role_subtitle">Choose how you want to access TwinStock AI</p>
 
             <div class="role-options">
-
-
-                <!-- MANAGER -->
-
-                <button
-                    type="button"
-                    class="role-button manager-role"
-                    onclick="selectRole('manager')">
-
-                    <span class="role-icon">
-                        👨‍💼
-                    </span>
-
+                <button type="button" class="role-button manager-role" onclick="selectRole('manager')">
+                    <span class="role-icon">👨‍💼</span>
                     <div>
-
-                        <strong data-i18n="manager">
-                            Manager
-                        </strong>
-
+                        <strong data-i18n="manager">Manager</strong>
+                        <p style="font-size: 12px; color: var(--muted); margin: 2px 0 0;">Analytics, AI Forecasts & Restock Approval</p>
                     </div>
-
-                    <span class="arrow">
-                        →
-                    </span>
-
+                    <span class="arrow">→</span>
                 </button>
 
-
-
-                <!-- WORKER -->
-
-                <button
-                    type="button"
-                    class="role-button worker-role"
-                    onclick="selectRole('worker')">
-
-                    <span class="role-icon">
-                        👷
-                    </span>
-
+                <button type="button" class="role-button worker-role" onclick="selectRole('worker')">
+                    <span class="role-icon">👷</span>
                     <div>
-
-                        <strong data-i18n="worker">
-                            Worker
-                        </strong>
-
+                        <strong data-i18n="worker">Worker</strong>
+                        <p style="font-size: 12px; color: var(--muted); margin: 2px 0 0;">Record Inventory Transactions & Stock Intake</p>
                     </div>
-
-                    <span class="arrow">
-                        →
-                    </span>
-
+                    <span class="arrow">→</span>
                 </button>
-
-
             </div>
-
         </div>
 
-
-
-        <!-- FOOTER -->
-
-        <p class="footer-text">
-
-            By ByteMe
-
-        </p>
-
-
+        <p class="footer-text">Powered by TwinStock AI • By ByteMe</p>
     </div>
 
-
-    <!-- YOUR JS -->
-
     <script src="js/theme.js"></script>
+    <script src="js/language.js"></script>
     <script src="js/index.js"></script>
-
 </body>
-
 </html>

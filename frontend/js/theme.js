@@ -1,3 +1,7 @@
+// =====================================================
+// TwinStock AI - Theme System (Light / Dark Mode)
+// =====================================================
+
 document.addEventListener('DOMContentLoaded', () => {
     const toggle = document.getElementById('themeToggle');
     const root = document.documentElement;
@@ -12,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // initialize from localStorage or system
     const saved = localStorage.getItem('twinstock-theme');
     if (saved) {
         applyTheme(saved);
@@ -30,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Expose a small helper for other scripts
 window.twinstockTheme = {
     set: (t) => {
         localStorage.setItem('twinstock-theme', t);

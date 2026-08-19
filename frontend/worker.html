@@ -1,599 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>TwinStock AI - Worker</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TwinStock AI - Worker Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="css/style.css">
-
 </head>
-
 <body>
-
-    <div class="header-right">
-
-        <nav class="settings-nav">
-
-            <div class="settings-item language-switcher">
-                <span class="sr-only">Language</span>
-                <select id="languageSelect">
-                    <option value="en">English</option>
-                    <option value="hi">हिन्दी</option>
-                    <option value="kn">ಕನ್ನಡ</option>
-                </select>
-            </div>
-
-            <div class="settings-item role-switcher">
-                <span class="sr-only">Role</span>
-                <select id="roleSelect">
-                    <option value="worker">👷 Worker</option>
-                    <option value="manager">👨‍💼 Manager</option>
-                </select>
-            </div>
-
-            <div class="settings-item">
-                <button id="themeToggle" class="theme-toggle" title="Toggle theme">🌙</button>
-            </div>
-
-            <div class="settings-item">
-                <button class="logout-btn" onclick="goHome()" data-i18n="logout">Logout</button>
-            </div>
-
-        </nav>
-
-    </div>
-
+    <!-- HEADER -->
+    <header class="topbar">
+        <div class="brand-small" onclick="goHome()" style="cursor: pointer;">
+            <span>📦</span>
+            <strong>TwinStock AI</strong>
         </div>
 
-
-        <!-- ROLE -->
-
-        <div class="role-switcher">
-
-            <span data-i18n="role">
-                Role
-            </span>
-
-            <select id="roleSelect"
-                    onchange="switchRole()">
-
-                <option value="worker">
-                    👷 Worker
-                </option>
-
-                <option value="manager">
-                    👨‍💼 Manager
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- LOGOUT -->
-
-        <button id="themeToggle" class="logout-btn theme-toggle" title="Toggle theme">🌙</button>
-
-        <button class="logout-btn"
-                onclick="goHome()"
-                data-i18n="logout">
-
-            Logout
-
-        </button>
-
-    </div>
-
-</header>
-
-
-
-<main class="dashboard">
-
-
-    <!-- PAGE HEADING -->
-
-    <div class="page-heading">
-
-        <div>
-
-            <h1 data-i18n="dashboard">
-                Worker Dashboard
-            </h1>
-
-            <p data-i18n="dashboard_description">
-                Update warehouse inventory and record transactions.
-            </p>
-
-        </div>
-
-
-        <div class="status-badge">
-
-            ●
-            <span data-i18n="system_live">
-                System Live
-            </span>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- SUMMARY -->
-
-    <section class="summary-grid">
-
-
-        <!-- TOTAL PRODUCTS -->
-
-        <div class="summary-card">
-
-            <div class="summary-icon blue">
-                📦
-            </div>
-
-            <div>
-
-                <p data-i18n="total_products">
-                    Total Products
-                </p>
-
-                <h2 id="totalProducts">
-                    --
-                </h2>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- TOTAL INVENTORY -->
-
-        <div class="summary-card">
-
-            <div class="summary-icon purple">
-                📊
-            </div>
-
-            <div>
-
-                <p data-i18n="total_inventory">
-                    Total Inventory
-                </p>
-
-                <h2 id="totalInventory">
-                    --
-                </h2>
-
-                <span data-i18n="units">
-                    units
-                </span>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- HIGH RISK -->
-
-        <div class="summary-card risk-card">
-
-            <div class="summary-icon red">
-                ⚠️
-            </div>
-
-            <div>
-
-                <p data-i18n="high_risk">
-                    High Risk
-                </p>
-
-                <h2 id="highRisk">
-                    --
-                </h2>
-
-                <span data-i18n="products">
-                    products
-                </span>
-
-            </div>
-
-        </div>
-
-
-
-        <!-- OVERSTOCK -->
-
-        <div class="summary-card overstock-card">
-
-            <div class="summary-icon orange">
-                📈
-            </div>
-
-            <div>
-
-                <p data-i18n="overstock">
-                    Overstock
-                </p>
-
-                <h2 id="overstock">
-                    --
-                </h2>
-
-                <span data-i18n="products">
-                    products
-                </span>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- WORKER CONTENT -->
-
-    <section class="worker-grid">
-
-
-        <!-- ========================================= -->
-        <!-- UPDATE INVENTORY -->
-        <!-- ========================================= -->
-
-        <div class="panel">
-
-
-            <div class="panel-header">
-
-                <div>
-
-                    <h2>
-
-                        📦
-
-                        <span data-i18n="update_inventory">
-                            Update Inventory
-                        </span>
-
-                    </h2>
-
-                    <p data-i18n="record_transaction">
-                        Record a new warehouse transaction
-                    </p>
-
+        <div class="header-right">
+            <nav class="settings-nav">
+                <div class="settings-item language-switcher">
+                    <span class="sr-only">Language</span>
+                    <select id="languageSelect">
+                        <option value="en">English</option>
+                        <option value="hi">हिन्दी</option>
+                        <option value="kn">ಕನ್ನಡ</option>
+                    </select>
                 </div>
 
-            </div>
-
-
-
-            <form id="transactionForm">
-
-
-                <!-- PRODUCT ID -->
-
-                <div class="form-group">
-
-                    <label for="product"
-                           data-i18n="product_id">
-
-                        Product ID
-
-                    </label>
-
-
-                    <input
-                        type="text"
-                        id="product"
-                        name="product"
-                        placeholder="Example: ITM10000"
-                        data-i18n-placeholder="product_placeholder"
-                        required
-                    >
-
-
-                    <small data-i18n="product_help">
-
-                        Enter the Item ID from the inventory database.
-
-                    </small>
-
+                <div class="settings-item role-switcher">
+                    <span class="sr-only">Role</span>
+                    <select id="roleSelect" onchange="switchRole()">
+                        <option value="worker">👷 Worker</option>
+                        <option value="manager">👨‍💼 Manager</option>
+                    </select>
                 </div>
 
+                <div class="settings-item">
+                    <button id="themeToggle" class="theme-toggle" title="Toggle theme">🌙</button>
+                </div>
 
+                <div class="settings-item">
+                    <button class="logout-btn" onclick="goHome()" data-i18n="logout">Logout</button>
+                </div>
+            </nav>
+        </div>
+    </header>
 
-                <!-- TRANSACTION TYPE -->
+    <!-- DASHBOARD MAIN -->
+    <main class="dashboard">
+        <!-- PAGE HEADING -->
+        <div class="page-heading">
+            <div>
+                <h1 data-i18n="dashboard">Worker Dashboard</h1>
+                <p data-i18n="dashboard_description" style="color: var(--muted); margin-top: 4px;">Update warehouse inventory and record stock movements.</p>
+            </div>
+            <div class="status-badge"><span data-i18n="system_live">● System Live</span></div>
+        </div>
 
-                <div class="form-group">
+        <!-- WORKER CONTENT GRID -->
+        <section class="worker-grid">
+            <!-- UPDATE INVENTORY FORM -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>📦 <span data-i18n="update_inventory">Update Inventory</span></h2>
+                        <p data-i18n="record_transaction">Record a new warehouse transaction</p>
+                    </div>
+                </div>
 
-                    <label data-i18n="transaction_type">
+                <form id="transactionForm">
+                    <!-- PRODUCT ID -->
+                    <div class="form-group">
+                        <label for="product" data-i18n="product_id">Product ID</label>
+                        <input type="text" id="product" name="product" placeholder="Example: ITM10025" data-i18n-placeholder="product_placeholder" required>
+                        <small data-i18n="product_help" style="color: var(--muted); display: block; margin-top: 4px;">Enter the Item ID from the inventory database.</small>
+                    </div>
 
-                        Transaction Type
+                    <!-- TRANSACTION TYPE SELECTOR -->
+                    <div class="form-group">
+                        <label data-i18n="transaction_type">Transaction Type</label>
+                        <div class="transaction-types">
+                            <button type="button" class="transaction-type active" data-type="receive">
+                                <span>📥</span>
+                                <span data-i18n="receive">Receive</span>
+                            </button>
+                            <button type="button" class="transaction-type" data-type="dispatch">
+                                <span>📤</span>
+                                <span data-i18n="dispatch">Dispatch</span>
+                            </button>
+                            <button type="button" class="transaction-type" data-type="return">
+                                <span>↩️</span>
+                                <span data-i18n="return">Return</span>
+                            </button>
+                            <button type="button" class="transaction-type" data-type="damaged">
+                                <span>⚠️</span>
+                                <span data-i18n="damaged">Damaged</span>
+                            </button>
+                        </div>
+                    </div>
 
-                    </label>
-
-
-                    <div class="transaction-types">
-
-
-                        <!-- RECEIVE -->
-
-                        <button
-                            type="button"
-                            class="transaction-type active"
-                            data-type="receive">
-
-                            <span>📥</span>
-
-                            <span data-i18n="receive">
-                                Receive
-                            </span>
-
-                        </button>
-
-
-
-                        <!-- SETTINGS -->
-
-                        <div class="language-switcher">
-
-                            <span>
-                                Settings:
-                            </span>
-
-                            <select id="settingsSelect">
-
-                                <option value="branding">Branding</option>
-
-                                <option value="others">Others</option>
-
-                            </select>
-
+                    <!-- QUANTITY + LOCATION -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quantity" data-i18n="units">Units / Quantity</label>
+                            <input type="number" id="quantity" name="quantity" placeholder="Enter units" data-i18n-placeholder="units_placeholder" min="1" required>
                         </div>
 
-                            <span data-i18n="return">
-                                Return
-                            </span>
-
-                        </button>
-
-
-
-                        <!-- DAMAGED -->
-
-                        <button
-                            type="button"
-                            class="transaction-type"
-                            data-type="damaged">
-
-                            <span>⚠️</span>
-
-                            <span data-i18n="damaged">
-                                Damaged
-                            </span>
-
-                        </button>
-
+                        <div class="form-group">
+                            <label for="location" data-i18n="location">Location</label>
+                            <select id="location" name="location" required>
+                                <option value="Shelf A12" data-i18n="shelf_a12">Shelf A12</option>
+                                <option value="Shelf B04" data-i18n="shelf_b04">Shelf B04</option>
+                                <option value="Shelf C08" data-i18n="shelf_c08">Shelf C08</option>
+                                <option value="Shelf D15" data-i18n="shelf_d15">Shelf D15</option>
+                            </select>
+                        </div>
                     </div>
 
-                </div>
-
-
-
-                <!-- QUANTITY + LOCATION -->
-
-                <div class="form-row">
-
-
-                    <!-- UNITS -->
-
+                    <!-- NOTES -->
                     <div class="form-group">
-
-                        <label
-                            for="quantity"
-                            data-i18n="units">
-
-                            Units
-
-                        </label>
-
-
-                        <input
-                            type="number"
-                            id="quantity"
-                            name="quantity"
-                            placeholder="Enter units"
-                            data-i18n-placeholder="units_placeholder"
-                            min="1"
-                            required
-                        >
-
+                        <label for="notes" data-i18n="notes">Details / Notes</label>
+                        <textarea id="notes" name="notes" rows="3" placeholder="Enter additional details..." data-i18n-placeholder="notes_placeholder"></textarea>
                     </div>
 
+                    <!-- SUBMIT -->
+                    <button type="submit" class="primary-btn full-btn" data-i18n="submit">Submit Transaction</button>
+                </form>
 
-
-                    <!-- LOCATION -->
-
-                    <div class="form-group">
-
-                        <label
-                            for="location"
-                            data-i18n="location">
-
-                            Location
-
-                        </label>
-
-
-                        <select
-    id="location"
-    name="location"
-    required>
-
-    <option value="L82" data-i18n="shelf_a12">
-        Shelf A12
-    </option>
-
-    <option value="L15" data-i18n="shelf_b04">
-        Shelf B04
-    </option>
-
-    <option value="L04" data-i18n="shelf_c08">
-        Shelf C08
-    </option>
-
-    <option value="L95" data-i18n="shelf_d15">
-        Shelf D15
-    </option>
-
-</select>
-
-                    </div>
-
+                <!-- SUCCESS MESSAGE -->
+                <div id="successMessage" class="success-message" style="display: none; margin-top: 15px;">
+                    ✓ <span data-i18n="transaction_success">Transaction recorded successfully!</span>
                 </div>
-
-
-
-                <!-- NOTES -->
-
-                <div class="form-group">
-
-                    <label
-                        for="notes"
-                        data-i18n="notes">
-
-                        Details / Notes
-
-                    </label>
-
-
-                    <textarea
-                        id="notes"
-                        name="notes"
-                        rows="4"
-                        placeholder="Enter any additional details..."
-                        data-i18n-placeholder="notes_placeholder"
-                    ></textarea>
-
-                </div>
-
-
-
-                <!-- SUBMIT -->
-
-                <button
-                    type="submit"
-                    class="primary-btn full-btn"
-                    data-i18n="submit">
-
-                    Submit Transaction
-
-                </button>
-
-            </form>
-
-
-
-            <!-- SUCCESS MESSAGE -->
-
-            <div
-                id="successMessage"
-                class="success-message"
-                style="display: none;">
-
-                ✓
-
-                <span data-i18n="transaction_success">
-                    Transaction recorded successfully!
-                </span>
-
             </div>
 
-        </div>
+            <!-- RECENT TRANSACTIONS LOG -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>📋 <span data-i18n="recent_transactions">Recent Transactions</span></h2>
+                        <p data-i18n="latest_updates">Latest warehouse updates</p>
+                    </div>
+                    <span class="count-badge" data-i18n="today">Live</span>
+                </div>
 
+                <div class="transaction-list" id="transactionList">
+                    <!-- Transactions dynamically populated by worker.js -->
+                </div>
+            </div>
+        </section>
 
-
-        <!-- ========================================= -->
-        <!-- RECENT TRANSACTIONS -->
-        <!-- ========================================= -->
-
-        <div class="panel">
-
-
+        <!-- CURRENT INVENTORY LIST -->
+        <section class="panel" style="margin-top: 24px;">
             <div class="panel-header">
-
                 <div>
-
-                    <h2>
-
-                        📋
-
-                        <span data-i18n="recent_transactions">
-                            Recent Transactions
-                        </span>
-
-                    </h2>
-
-                    <p data-i18n="latest_updates">
-                        Latest inventory updates
-                    </p>
-
+                    <h2>📦 Warehouse Stock List</h2>
+                    <p style="color: var(--muted); margin-top: 2px;">Active inventory records</p>
                 </div>
-
-
-                <span class="count-badge"
-                      data-i18n="today">
-
-                    Today
-
-                </span>
-
             </div>
-
-<script src="js/theme.js"></script>
-
-
-            <div
-                class="transaction-list"
-                id="transactionList">
-
-                <!-- Transactions are added dynamically by worker.js -->
-
+            <div class="table-responsive">
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>Item ID</th>
+                            <th>Stock Level</th>
+                            <th>Status</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workerProductsTable">
+                        <tr><td colspan="4" style="text-align:center;">Loading warehouse inventory...</td></tr>
+                    </tbody>
+                </table>
             </div>
+        </section>
+    </main>
 
-        </div>
-
-    </section>
-
-</main>
-
-
-
-<!-- LANGUAGE SCRIPT -->
-
-<script src="js/i18n.js"></script>
-
-
-<!-- WORKER SCRIPT -->
-
-<script src="js/worker.js"></script>
-
-
+    <!-- SCRIPTS -->
+    <script src="js/theme.js"></script>
+    <script src="js/language.js"></script>
+    <script src="js/worker.js"></script>
 </body>
-
 </html>

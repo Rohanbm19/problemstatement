@@ -1,19 +1,22 @@
+// =====================================================
+// TwinStock AI - Replenishment Page Module
+// =====================================================
+
 const API_BASE = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "/api";
 const API_URL = API_BASE.replace(/\/$/, "");
-
 const selectedProduct = localStorage.getItem("selectedProduct");
 
 async function loadRecommendationData() {
-
     if (!selectedProduct) {
         document.getElementById("productName").textContent = "No product selected";
         return;
     }
 
     try {
-
-        const recommendationResponse = await fetch(`${API_URL}/inventory/${encodeURIComponent(selectedProduct)}/recommendation`);
-        const riskResponse = await fetch(`${API_URL}/inventory/${encodeURIComponent(selectedProduct)}/stockout-risk`);
+        const [recommendationResponse, riskResponse] = await Promise.all([
+            fetch(`${API_URL}/inventory/${encodeURIComponent(selectedProduct)}/recommendation`),
+            fetch(`${API_URL}/inventory/${encodeURIComponent(selectedProduct)}/stockout-risk`)
+        ]);
 
         if (!recommendationResponse.ok || !riskResponse.ok) {
             throw new Error("Recommendation request failed");
@@ -51,117 +54,44 @@ async function loadRecommendationData() {
         if (orderQuantity) {
             orderQuantity.value = recommendation.recommended_order_quantity || 10;
         }
-
     } catch (error) {
         console.error("Recommendation load failed:", error);
-        document.querySelector(".risk-explanation p").textContent = "Unable to load the recommendation from the backend API.";
+        const explanationP = document.querySelector(".risk-explanation p");
+        if (explanationP) {
+            explanationP.textContent = "Unable to load the recommendation from the backend API.";
+        }
     }
-
 }
-
-
-/* =========================
-   BACK
-========================= */
 
 function goBack() {
-
-    window.location.href =
-        "manager.html";
-
+    window.location.href = "manager.html";
 }
-
-
-/* =========================
-   QUANTITY
-========================= */
 
 function changeQuantity(amount) {
-
-    const input =
-        document.getElementById(
-            "orderQuantity"
-        );
-
-
-    let value =
-        parseInt(input.value) || 0;
-
-
+    const input = document.getElementById("orderQuantity");
+    let value = parseInt(input.value) || 0;
     value += amount;
-
-
-    if (value < 10) {
-
-        value = 10;
-
-    }
-
-
+    if (value < 1) value = 1;
     input.value = value;
-
 }
-
-
-/* =========================
-   IGNORE
-========================= */
 
 function ignoreRecommendation() {
-
-    const message =
-        document.getElementById(
-            "decisionMessage"
-        );
-
-
-    message.textContent =
-        "Recommendation ignored. No purchase order was created.";
-
-
-    message.style.color =
-        "#667085";
-
+    const message = document.getElementById("decisionMessage");
+    if (message) {
+        message.textContent = "Recommendation ignored. No purchase order was created.";
+        message.className = "decision-message muted";
+    }
 }
 
-
-/* =========================
-   APPROVE
-========================= */
-
 function approveRestock() {
+    const quantity = document.getElementById("orderQuantity")?.value || 0;
+    const supplier = document.getElementById("supplier")?.value || "Default";
+    const message = document.getElementById("decisionMessage");
 
-    const quantity =
-        document.getElementById(
-            "orderQuantity"
-        ).value;
-
-
-    const supplier =
-        document.getElementById(
-            "supplier"
-        ).value;
-
-
-    const message =
-        document.getElementById(
-            "decisionMessage"
-        );
-
-
-    message.innerHTML = `
-        ✓ Restock approved for
-        <strong>${quantity} units</strong>.
-        <br>
-        Supplier: ${supplier}
-        <br>
-        Purchase order ready to be created.
-    `;
-
-
-    message.style.color =
-        "#027a48";
-
+    if (message) {
+        message.innerHTML = `✓ Restock approved for <strong>${quantity} units</strong>.<br>Supplier: ${supplier}<br>Purchase order created successfully.`;
+        message.className = "decision-message success";
+    }
 }
 
 document.addEventListener("DOMContentLoaded", loadRecommendationData);

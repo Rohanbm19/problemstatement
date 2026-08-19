@@ -1,303 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Replenishment - TwinStock AI</title>
-
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
-        <link rel="stylesheet"
-            href="css/style.css">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TwinStock AI - Replenishment Recommendation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
-
-
 <body>
-
-
-<header class="topbar">
-
-    <div class="brand-small">
-
-        <span>📦</span>
-
-        <strong>TwinStock AI</strong>
-
-    </div>
-
-
-    <button class="back-btn"
-            onclick="goBack()">
-
-        ← Back to Dashboard
-
-    </button>
-
-</header>
-
-<!-- Theme toggle (floating for pages without header controls) -->
-<button id="themeToggle" class="theme-toggle floating" title="Toggle theme">🌙</button>
-
-
-<main class="dashboard">
-
-
-    <div class="page-heading">
-
-        <div>
-
-            <h1>Replenishment Recommendation</h1>
-
-            <p>
-                Review the AI recommendation before approving a purchase.
-            </p>
-
+    <!-- HEADER -->
+    <header class="topbar">
+        <div class="brand-small" onclick="goBack()" style="cursor: pointer;">
+            <span>📦</span>
+            <strong>TwinStock AI</strong>
         </div>
 
-    </div>
+        <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
 
+        <div class="header-right">
+            <button id="themeToggle" class="theme-toggle" title="Toggle theme">🌙</button>
+        </div>
+    </header>
 
-    <section class="replenishment-grid">
-
-
-        <!-- PRODUCT INFORMATION -->
-
-        <div class="panel">
-
-            <div class="product-title">
-
-                <div class="large-product-icon">
-                    💻
-                </div>
-
-                <div>
-
-                    <span class="small-label">
-                        PRODUCT
-                    </span>
-
-                    <h2 id="productName">
-                        Laptop
-                    </h2>
-
-                    <span id="productId">
-                        Product ID: PRD-001
-                    </span>
-
-                </div>
-
+    <!-- MAIN CONTENT -->
+    <main class="dashboard">
+        <div class="page-heading">
+            <div>
+                <h1>Replenishment Recommendation</h1>
+                <p style="color: var(--muted); margin-top: 4px;">Review the AI recommendation before approving a purchase order.</p>
             </div>
-
-
-            <div class="metrics-grid">
-
-                <div class="metric">
-
-                    <span>
-                        Current Stock
-                    </span>
-
-                    <strong>
-                        120 units
-                    </strong>
-
-                </div>
-
-
-                <div class="metric">
-
-                    <span>
-                        Predicted Demand
-                    </span>
-
-                    <strong>
-                        50/day
-                    </strong>
-
-                </div>
-
-
-                <div class="metric danger-metric">
-
-                    <span>
-                        Stockout Prediction
-                    </span>
-
-                    <strong>
-                        3 days
-                    </strong>
-
-                </div>
-
-
-                <div class="metric">
-
-                    <span>
-                        Supplier Lead Time
-                    </span>
-
-                    <strong>
-                        5 days
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-            <div class="risk-explanation">
-
-                <span class="risk-icon">
-                    ⚠️
-                </span>
-
-                <div>
-
-                    <strong>
-                        High Stockout Risk
-                    </strong>
-
-                    <p>
-                        Current inventory is expected to run out
-                        before the supplier can deliver the next shipment.
-                    </p>
-
-                </div>
-
-            </div>
-
         </div>
 
-
-        <!-- AI RECOMMENDATION -->
-
-        <div class="panel ai-recommendation">
-
-            <div class="ai-title">
-
-                <span class="ai-large-icon">
-                    🔮
-                </span>
-
-                <div>
-
-                    <h2>Granite Recommendation</h2>
-
-                    <span>
-                        AI-generated replenishment suggestion
-                    </span>
-
+        <section class="replenishment-grid">
+            <!-- PRODUCT INFORMATION PANEL -->
+            <div class="panel">
+                <div class="product-title">
+                    <div class="large-product-icon">💻</div>
+                    <div>
+                        <span class="small-label">PRODUCT</span>
+                        <h2 id="productName">Product Details</h2>
+                        <span id="productId" style="color: var(--muted); font-size: 13px;">Product ID: --</span>
+                    </div>
                 </div>
 
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    Recommended Order Quantity
-                </label>
-
-                <div class="quantity-input">
-
-                    <button onclick="changeQuantity(-10)">
-                        −
-                    </button>
-
-                    <input
-                        type="number"
-                        id="orderQuantity"
-                        value="200"
-                    >
-
-                    <button onclick="changeQuantity(10)">
-                        +
-                    </button>
-
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <span>Current Stock</span>
+                        <strong>-- units</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Predicted Demand</span>
+                        <strong>--/day</strong>
+                    </div>
+                    <div class="metric danger-metric">
+                        <span>Stockout Prediction</span>
+                        <strong>-- days</strong>
+                    </div>
+                    <div class="metric">
+                        <span>Supplier Lead Time</span>
+                        <strong>-- days</strong>
+                    </div>
                 </div>
 
+                <div class="risk-explanation" style="margin-top: 20px;">
+                    <span class="risk-icon">⚠️</span>
+                    <div>
+                        <strong>Evaluating Stockout Risk...</strong>
+                        <p>Current inventory data is being analyzed against predicted demand.</p>
+                    </div>
+                </div>
             </div>
 
+            <!-- AI RECOMMENDATION PANEL -->
+            <div class="panel ai-recommendation">
+                <div class="ai-title">
+                    <span class="ai-large-icon">🔮</span>
+                    <div>
+                        <h2>Granite AI Recommendation</h2>
+                        <span style="color: var(--muted); font-size: 13px;">Automated Restock & Supplier Suggestion</span>
+                    </div>
+                </div>
 
-            <div class="form-group">
+                <div class="form-group" style="margin-top: 16px;">
+                    <label for="orderQuantity">Recommended Order Quantity</label>
+                    <div class="quantity-input">
+                        <button type="button" onclick="changeQuantity(-10)">−</button>
+                        <input type="number" id="orderQuantity" value="100">
+                        <button type="button" onclick="changeQuantity(10)">+</button>
+                    </div>
+                </div>
 
-                <label>
-                    Recommended Supplier
-                </label>
+                <div class="form-group">
+                    <label for="supplier">Recommended Supplier</label>
+                    <select id="supplier">
+                        <option>Supplier A — 2 days — 96% reliability</option>
+                        <option>Supplier B — 4 days — 91% reliability</option>
+                    </select>
+                </div>
 
-                <select id="supplier">
+                <div class="recommendation-reason">
+                    <strong>Why this recommendation?</strong>
+                    <p>Demand predictions indicate stock will dip below safety threshold. Restocking ensures smooth warehouse operations.</p>
+                </div>
 
-                    <option>
-                        Supplier A — 2 days — 96% reliability
-                    </option>
+                <div class="decision-buttons">
+                    <button type="button" class="ignore-btn" onclick="ignoreRecommendation()">Ignore</button>
+                    <button type="button" class="approve-btn" onclick="approveRestock()">✓ Approve Restock</button>
+                </div>
 
-                    <option>
-                        Supplier B — 4 days — 91% reliability
-                    </option>
-
-                </select>
-
+                <div id="decisionMessage" class="decision-message"></div>
             </div>
+        </section>
+    </main>
 
-
-            <div class="recommendation-reason">
-
-                <strong>
-                    Why this recommendation?
-                </strong>
-
-                <p>
-                    Demand has increased recently and the current
-                    inventory may not last until the next supplier
-                    delivery. Ordering 200 units maintains sufficient
-                    safety stock.
-                </p>
-
-            </div>
-
-
-            <div class="decision-buttons">
-
-                <button class="ignore-btn"
-                        onclick="ignoreRecommendation()">
-
-                    Ignore
-
-                </button>
-
-
-                <button class="approve-btn"
-                        onclick="approveRestock()">
-
-                    ✓ Approve Restock
-
-                </button>
-
-            </div>
-
-
-            <div id="decisionMessage"
-                 class="decision-message">
-            </div>
-
-        </div>
-
-    </section>
-
-</main>
-
-
-<script src="js/replenishment.js"></script>
-<script src="js/theme.js"></script>
-
+    <!-- SCRIPTS -->
+    <script src="js/theme.js"></script>
+    <script src="js/language.js"></script>
+    <script src="js/replenishment.js"></script>
 </body>
-
 </html>
