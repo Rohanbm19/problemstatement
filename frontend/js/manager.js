@@ -2,7 +2,7 @@
 // TwinStock AI - Manager Dashboard Module
 // =========================================================
 
-const BACKEND_URL = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "/api";
+const BACKEND_URL = (window.CONFIG && window.CONFIG.getApiUrl) ? window.CONFIG.getApiUrl() : (window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "/api");
 
 function switchRole() {
     const roleSelect = document.getElementById("roleSelect");
@@ -203,7 +203,7 @@ function renderInventoryTable(items) {
                 <td>${item.currentStock.toLocaleString()}</td>
                 <td>${item.totalPredictedDemand ? item.totalPredictedDemand.toFixed(1) : 0} / 7 days</td>
                 <td><span class="badge ${badgeClass}">${statusText}</span></td>
-                <td>${item.location || 'Main Warehouse'}</td>
+                <td>${item.storage_location_id || item.location || 'Main Warehouse'}</td>
                 <td>
                     <button class="action-btn" onclick="openRecommendation('${item.item_id}')">Review</button>
                 </td>

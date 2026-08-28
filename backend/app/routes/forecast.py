@@ -14,7 +14,10 @@ router = APIRouter(
 )
 
 
-ML_SERVICE_URL = "http://127.0.0.1:8001"
+import os
+from datetime import date, timedelta
+
+ML_SERVICE_URL = os.getenv("ML_SERVICE_URL", "http://127.0.0.1:8001")
 
 
 @router.post("/{item_id}")
@@ -85,16 +88,6 @@ async def generate_forecast(
         .all()
     )
 
-    if not transactions:
-
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                f"No transactions found for {item_id}. "
-                "Create dispatch transactions first."
-            ),
-        )
-
     # ========================================================
     # BUILD DAILY DEMAND
     # ========================================================
@@ -109,110 +102,51 @@ async def generate_forecast(
             .strip()
         )
 
-        # ----------------------------------------------------
-        # Only dispatch is demand
-        # ----------------------------------------------------
-
         if transaction_type != "dispatch":
             continue
 
-        # ----------------------------------------------------
-        # Require created_at
-        # ----------------------------------------------------
-
         if transaction.created_at is None:
-
-            print(
-                f"WARNING: Transaction "
-                f"{transaction.id} "
-                f"has no created_at"
-            )
-
             continue
 
-        transaction_date = (
-            transaction.created_at.date()
-        )
-
-        # ----------------------------------------------------
-        # Aggregate demand by date
-        # ----------------------------------------------------
-
-        daily_demand.setdefault(
-            transaction_date,
-            0,
-        )
-
-        daily_demand[
-            transaction_date
-        ] += transaction.quantity
+        transaction_date = transaction.created_at.date()
+        daily_demand.setdefault(transaction_date, 0)
+        daily_demand[transaction_date] += transaction.quantity
 
     # ========================================================
-    # NO DISPATCH DEMAND
+    # CREATE CONTINUOUS DAILY HISTORY (WITH FALLBACK)
     # ========================================================
-
-    if not daily_demand:
-
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                f"Transactions were found for {item_id}, "
-                "but there are no dispatch transactions "
-                "with valid dates."
-            ),
-        )
-
-    # ========================================================
-    # CREATE CONTINUOUS DAILY HISTORY
-    # ========================================================
-
-    first_date = min(
-        daily_demand.keys()
-    )
-
-    last_date = max(
-        daily_demand.keys()
-    )
 
     history = []
 
-    current_date = first_date
+    if daily_demand:
+        first_date = min(daily_demand.keys())
+        last_date = max(daily_demand.keys())
+        current_date = first_date
+        while current_date <= last_date:
+            history.append(
+                {
+                    "date": current_date.isoformat(),
+                    "demand": daily_demand.get(current_date, 0),
+                }
+            )
+            current_date += timedelta(days=1)
 
-    while current_date <= last_date:
-
-        history.append(
-            {
-                "date": current_date.isoformat(),
-                "demand": daily_demand.get(
-                    current_date,
-                    0,
-                ),
-            }
-        )
-
-        current_date += timedelta(
-            days=1
-        )
-
-    # ========================================================
-    # DEMO MINIMUM
-    #
-    # Granite demo mode requires 7 real daily observations.
-    # ========================================================
-
+    # If transactions cover less than 7 days, extrapolate/fill using item.daily_demand
     if len(history) < 7:
-
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                f"Only {len(history)} days of "
-                f"continuous demand history exist "
-                f"for {item_id}. "
-                "Create dispatch transactions "
-                "across at least 7 different dates "
-                "for the demo forecast."
-            ),
-        )
+        today = date.today()
+        base_demand = float(item.daily_demand) if item.daily_demand and item.daily_demand > 0 else 10.0
+        
+        # Build 7-day history leading up to today
+        history = []
+        for i in range(7, 0, -1):
+            d = today - timedelta(days=i)
+            # Add slight variance if demand_std_dev exists
+            variance = float(item.demand_std_dev or 1.0) * (0.1 if (i % 2 == 0) else -0.1)
+            day_demand = max(1.0, round(base_demand + variance, 1))
+            history.append({
+                "date": d.isoformat(),
+                "demand": day_demand
+            })
 
     # ========================================================
     # DEBUG

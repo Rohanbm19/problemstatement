@@ -2,7 +2,7 @@
 // TwinStock AI - Replenishment Page Module
 // =====================================================
 
-const API_BASE = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "/api";
+const API_BASE = (window.CONFIG && window.CONFIG.getApiUrl) ? window.CONFIG.getApiUrl() : (window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "/api");
 const API_URL = API_BASE.replace(/\/$/, "");
 const selectedProduct = localStorage.getItem("selectedProduct");
 

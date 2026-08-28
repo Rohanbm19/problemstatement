@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # ------------------------------------------------------------
+  # Backend API Service (FastAPI)
+  # ------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: twinstock-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - DATABASE_URL=sqlite:///./app.db
+      - ML_SERVICE_URL=http://ml-service:8001
+      - ALLOWED_ORIGINS=*
+    volumes:
+      - backend_data:/app/data
+    depends_on:
+      - ml-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ------------------------------------------------------------
+  # ML Forecasting Service (IBM Granite TTM / Baseline)
+  # ------------------------------------------------------------
+  ml-service:
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
+    container_name: twinstock-ml-service
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ------------------------------------------------------------
+  # Frontend Static & Proxy Server
+  # ------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: twinstock-frontend
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  backend_data:

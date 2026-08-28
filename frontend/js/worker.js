@@ -2,7 +2,7 @@
 // TwinStock AI - Worker Dashboard Module
 // =====================================================
 
-const API_URL = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "/api";
+const API_URL = (window.CONFIG && window.CONFIG.getApiUrl) ? window.CONFIG.getApiUrl() : (window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "/api");
 let transactionType = "receive";
 
 function switchRole() {
@@ -165,7 +165,7 @@ async function loadWorkerProducts() {
                 <td><strong>${item.item_id}</strong></td>
                 <td>${item.stock_level}</td>
                 <td><span class="badge ${item.stock_level < 20 ? 'badge-danger' : 'badge-success'}">${item.stock_level < 20 ? 'Low Stock' : 'In Stock'}</span></td>
-                <td>${item.location || 'Warehouse A'}</td>
+                <td>${item.storage_location_id || item.location || 'Warehouse A'}</td>
             </tr>
         `).join('');
     } catch (e) {

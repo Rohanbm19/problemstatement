@@ -6,7 +6,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
 FRONTEND_DIR = os.path.dirname(os.path.abspath(__file__))
-BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8001")
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
 HOST = "127.0.0.1"
 PORT = int(os.environ.get("PORT", "8000"))
 
